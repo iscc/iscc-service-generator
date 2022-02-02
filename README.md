@@ -1,2 +1,3 @@
-# iscc-service-generator
-ISCC Generator Web Service APP
+# ISCC Generator - Web Service
+
+Under development ...
