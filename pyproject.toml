@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "iscc-service-generator"
+version = "0.1.0"
+description = "ISCC Generator Web Service APP"
+authors = ["Titusz <tp@iscc.foundation>"]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/iscc/iscc-service-generator"
+keywords=["iscc", "microservice", "rest-api", "identifier", "media", "hash", "simhash"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "^4.0.2"
+django-ninja = "^0.16.2"
+django-admin-interface = "^0.18.5"
+uvicorn = "^0.17.1"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+poethepoet = "^0.12.2"
+mkdocs-material = "^8.1.9"
+pytest = "^6.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
