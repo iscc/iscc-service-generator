@@ -1,2 +1,3 @@
-*
-!media/admin-interface/
+db.sqlite3
+media/*
+!media/admin-interface
