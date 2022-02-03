@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "iscc_generator",
+    "django_q",
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,14 @@ USE_L10N = False
 FIXTURE_DIRS = [BASE_DIR / "iscc_service_generator/fixtures"]
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+Q_CLUSTER = {
+    "name": "DjangORM",
+    "workers": 4,
+    "timeout": 90,
+    "retry": 120,
+    "queue_limit": 50,
+    "bulk": 10,
+    "orm": "default",
+    "sync": True,
+}

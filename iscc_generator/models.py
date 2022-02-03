@@ -89,6 +89,7 @@ class IsccCode(GeneratorBaseModel):
     )
     description = models.TextField(
         verbose_name=_("description"),
+        null=True,
         blank=True,
         max_length=4096,
         help_text=_(
@@ -143,4 +144,12 @@ class IsccTask(GeneratorBaseModel):
         null=True,
         blank=True,
         help_text=_("Metadate supplied for ISCC generation"),
+    )
+
+    task = models.ForeignKey(
+        "django_q.Task",
+        null=True,
+        blank=True,
+        verbose_name="background_task",
+        on_delete=models.SET_NULL,
     )

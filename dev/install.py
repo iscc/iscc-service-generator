@@ -43,7 +43,8 @@ def install():
     print(
         "\n\nISCC Generator Service installed successfully.\n"
         '- Start development server with "python manage.py runserver".\n'
-        '- Login to dashboard at http://127.0.0.1:8000 with user "demo" and password "demo"'
+        '- Login to dashboard at http://127.0.0.1:8000 with user "demo" and password "demo"\n'
+        "- Test the REST api at http://127.0.0.1:8000/api/docs"
     )
 
 
