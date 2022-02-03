@@ -9,7 +9,14 @@ class IsccCodeAdmin(admin.ModelAdmin):
 
 @admin.register(IsccTask)
 class IsccTaskAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "id",
+        "source_file",
+        "source_url",
+        "metadata",
+        "created",
+        "modified",
+    )
 
 
 @admin.register(Media)
