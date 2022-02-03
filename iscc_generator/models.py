@@ -132,6 +132,14 @@ class IsccTask(GeneratorBaseModel):
     )
     source_url = models.URLField(
         verbose_name=_("Source URL"),
+        null=True,
         blank=True,
         help_text=_("URL of a the media file used as source for ISCC generation."),
+    )
+
+    metadata = models.JSONField(
+        verbose_name=_("metadata"),
+        null=True,
+        blank=True,
+        help_text=_("Metadate supplied for ISCC generation"),
     )
