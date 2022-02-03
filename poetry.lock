@@ -581,7 +581,7 @@ python-versions = "*"
 
 [[package]]
 name = "uvicorn"
-version = "0.17.1"
+version = "0.17.3"
 description = "The lightning-fast ASGI server."
 category = "main"
 optional = false
@@ -1049,8 +1049,8 @@ ulid-py = [
     {file = "ulid_py-1.1.0-py2.py3-none-any.whl", hash = "sha256:b56a0f809ef90d6020b21b89a87a48edc7c03aea80e5ed5174172e82d76e3987"},
 ]
 uvicorn = [
-    {file = "uvicorn-0.17.1-py3-none-any.whl", hash = "sha256:8b16d9ecb76500f7804184f182835fe8a2b54716d3b0b6bb2da0b2b192f62c73"},
-    {file = "uvicorn-0.17.1.tar.gz", hash = "sha256:dffbacb8cc25d924d68d231d2c478c4fe6727c36537d8de21e5de591b37afc41"},
+    {file = "uvicorn-0.17.3-py3-none-any.whl", hash = "sha256:3ab1bf48aa512692db93a91c514576a0739a9d3522827e1656a172ee87118fa5"},
+    {file = "uvicorn-0.17.3.tar.gz", hash = "sha256:3cebddac78c7dd6bfce2f8f838c2c9b0cfcf3dddf417315ba62378ebe7e8fae2"},
 ]
 watchdog = [
     {file = "watchdog-2.1.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9693f35162dc6208d10b10ddf0458cc09ad70c30ba689d9206e02cd836ce28a3"},

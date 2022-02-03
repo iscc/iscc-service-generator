@@ -52,7 +52,8 @@ class Media(GeneratorBaseModel):
         return self.name
 
     def filesize(self):
-        return humanize.naturalsize(self.size, binary=True)
+        if self.size:
+            return humanize.naturalsize(self.size, binary=True)
 
     def save(self, *args, **kwargs):
         """Intercept new file uploads"""
