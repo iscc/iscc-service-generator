@@ -32,9 +32,10 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "constance",
+    "constance.backends.database",
     "admin_interface",
     "colorfield",
-    "django.contrib.admin",
+    "iscc_service_generator.apps.GeneratorAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -163,7 +164,7 @@ CONSTANCE_CONFIG = {
         "(do not enable on public instances without authentication)",
     ),
     "RESULT_HOOK_URL": (
-        "",
+        "none",
         "An URL to which the background processing results should be deliverd "
         "(must be a an endpoint accepting POST requests with a json body)",
         "url_field",
@@ -177,7 +178,7 @@ CONSTANCE_CONFIG = {
 CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 CONSTANCE_ADDITIONAL_FIELDS = {
-    "url_field": ["django.forms.fields.URLField", {"widget": "django.forms.URLInput"}],
+    "url_field": ["django.forms.fields.CharField"],
     "rate_limit_field": [
         "django.forms.fields.ChoiceField",
         {
