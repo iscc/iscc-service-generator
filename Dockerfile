@@ -31,4 +31,4 @@ ENTRYPOINT [ "docker/entrypoint-dev.sh" ]
 
 EXPOSE 8000/tcp
 
-CMD ["poetry", "run", "python", "manage.py", "runserver", "--force-color", "0.0.0.0:8000"]
+CMD ["poetry", "run", "uvicorn", "iscc_service_generator.asgi:application", "--host=0.0.0.0", "--reload"]
