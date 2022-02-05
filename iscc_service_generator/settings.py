@@ -170,7 +170,7 @@ CONSTANCE_CONFIG = {
     ),
     "RATE_LIMIT": (
         "16/m",
-        "IP based rate limit for API calls. For possible values see: ",
+        "IP based rate limit for API calls",
         "rate_limit_field",
     ),
 }
