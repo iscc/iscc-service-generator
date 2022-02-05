@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "constance",
     "admin_interface",
     "colorfield",
     "django.contrib.admin",
@@ -148,4 +149,50 @@ Q_CLUSTER = {
     "bulk": 10,
     "orm": "default",
     "sync": True,
+}
+
+
+CONSTANCE_CONFIG = {
+    "PROCESSING_TIMEOUT": (
+        5,
+        "Number of seconds to wait for a background task before returning an async task instead",
+    ),
+    "ENABLE_LIST_ENDPOINTS": (
+        False,
+        "Enables REST Api endpoints that can list objects "
+        "(do not enable on public instances without authentication)",
+    ),
+    "RESULT_HOOK_URL": (
+        "",
+        "An URL to which the background processing results should be deliverd "
+        "(must be a an endpoint accepting POST requests with a json body)",
+        "url_field",
+    ),
+    "RATE_LIMIT": (
+        "16/m",
+        "IP based rate limit for API calls",
+        "rate_limit_field",
+    ),
+}
+CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+CONSTANCE_ADDITIONAL_FIELDS = {
+    "url_field": ["django.forms.fields.URLField", {"widget": "django.forms.URLInput"}],
+    "rate_limit_field": [
+        "django.forms.fields.ChoiceField",
+        {
+            "widget": "django.forms.Select",
+            "choices": (
+                ("4/m", "4 requests per minute"),
+                ("8/m", "8 requests per minute"),
+                ("16/m", "16 requests per minute"),
+                ("32/m", "32 requests per minute"),
+                ("64/m", "64 requests per minute"),
+                ("128/m", "128 requests per minute"),
+                ("254/m", "254 requests per minute"),
+                ("512/m", "512 requests per minute"),
+                ("1024/m", "1024 requests per minute"),
+            ),
+        },
+    ],
 }
