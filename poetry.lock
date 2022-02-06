@@ -198,7 +198,7 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-admin-interface"
-version = "0.18.5"
+version = "0.18.6"
 description = "django-admin-interface is a modern responsive flat admin interface customizable by the admin itself."
 category = "main"
 optional = false
@@ -228,6 +228,9 @@ description = "Django live settings with pluggable backends, including Redis."
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[package.dependencies]
+django-picklefield = {version = "*", optional = true, markers = "extra == \"database\""}
 
 [package.extras]
 database = ["django-picklefield"]
@@ -978,7 +981,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "uvicorn"
-version = "0.17.3"
+version = "0.17.4"
 description = "The lightning-fast ASGI server."
 category = "main"
 optional = false
@@ -1045,7 +1048,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "45b605c8f34424ce6ec3d04512fadf8a057a8d4fa406a54396403c1a1133c66a"
+content-hash = "df38c5b62e655f8ff21aeb5b41afe08bf0c840c0aa28250f6aff68768f835c99"
 
 [metadata.files]
 annoy = [
@@ -1216,8 +1219,8 @@ django = [
     {file = "Django-4.0.2.tar.gz", hash = "sha256:110fb58fb12eca59e072ad59fc42d771cd642dd7a2f2416582aa9da7a8ef954a"},
 ]
 django-admin-interface = [
-    {file = "django-admin-interface-0.18.5.tar.gz", hash = "sha256:b9cbedcab524935dca71637f0eb4979182d36c2089c99567826248f57713833b"},
-    {file = "django_admin_interface-0.18.5-py3-none-any.whl", hash = "sha256:b9cc4344a724681c09380a9042331bd2481bf506955cafcfda04425bdcb09e39"},
+    {file = "django-admin-interface-0.18.6.tar.gz", hash = "sha256:437371e4107d0a77a4ece5c5d08f89854fce120adc402881718ab638d496eaf6"},
+    {file = "django_admin_interface-0.18.6-py3-none-any.whl", hash = "sha256:8b6ea264bd7a8f24495d5ebdc1820942c33916e09fbd3f2288da8afa3edcce7b"},
 ]
 django-colorfield = [
     {file = "django-colorfield-0.6.3.tar.gz", hash = "sha256:441172f8c6024f70b01e3f63195fe83afc554387b34ad999880e86fde989e5af"},
@@ -1760,8 +1763,8 @@ uvarint = [
     {file = "uvarint-1.2.0.tar.gz", hash = "sha256:7cc17481c9af8ebe3978f5357412b57ff93ce8b14712236338f782cc8ae9a989"},
 ]
 uvicorn = [
-    {file = "uvicorn-0.17.3-py3-none-any.whl", hash = "sha256:3ab1bf48aa512692db93a91c514576a0739a9d3522827e1656a172ee87118fa5"},
-    {file = "uvicorn-0.17.3.tar.gz", hash = "sha256:3cebddac78c7dd6bfce2f8f838c2c9b0cfcf3dddf417315ba62378ebe7e8fae2"},
+    {file = "uvicorn-0.17.4-py3-none-any.whl", hash = "sha256:e85872d84fb651cccc4c5d2a71cf7ead055b8fb4d8f1e78e36092282c0cf2aec"},
+    {file = "uvicorn-0.17.4.tar.gz", hash = "sha256:25850bbc86195a71a6477b3e4b3b7b4c861fb687fb96912972ce5324472b1011"},
 ]
 watchdog = [
     {file = "watchdog-2.1.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9693f35162dc6208d10b10ddf0458cc09ad70c30ba689d9206e02cd836ce28a3"},
