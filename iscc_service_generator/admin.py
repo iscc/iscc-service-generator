@@ -10,7 +10,7 @@ class IsccAdminSite(AdminSite):
         ordered = {
             "iscc_generator": "ISCC Generator",
             "django_q": "Background Tasks",
-            "auth": "User Managment",
+            "auth": "User Management",
             "constance": "Configuration",
             "admin_interface": "Branding",
         }
