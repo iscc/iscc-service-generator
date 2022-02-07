@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_json_widget",
+    "django_object_actions",
     "iscc_generator",
     "django_q",
 ]
@@ -175,7 +177,6 @@ CONSTANCE_CONFIG = {
         "rate_limit_field",
     ),
 }
-CONSTANCE_IGNORE_ADMIN_VERSION_CHECK = True
 CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
 CONSTANCE_ADDITIONAL_FIELDS = {
     "url_field": ["django.forms.fields.CharField"],

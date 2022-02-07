@@ -1,49 +1,69 @@
 # -*- coding: utf-8 -*-
 from typing import Optional
 
-from django_q.tasks import async_task
-from ninja import Router, UploadedFile, File, Schema, Form, ModelSchema
-from pydantic import Field, Json
-from iscc_generator.models import IsccTask, Media
-from ninja.errors import HttpError
+from django_q.tasks import async_task, result
+from django_q.models import Task
+from ninja import Router, UploadedFile, File, Form, ModelSchema
+from pydantic import Field
+
+from iscc_generator.models import IsccCode
 from iscc_generator.tasks import create_iscc_code
+from constance import config
 
 
 router = Router()
 
 
-class IsccTaskRequest(Schema):
-    source_url: Optional[str]
-    name: Optional[str]
-    description: Optional[str]
-    metadata: Optional[Json] = Field({})
-
-
-class IsccTaskRespone(ModelSchema):
+class IsccRequest(ModelSchema):
     class Config:
-        model = IsccTask
-        model_exclude = ("source_file", "metadata")
+        model = IsccCode
+        model_fields = ["name", "description"]
 
 
-@router.post("/iscc_code", response=IsccTaskRespone, summary="Generate ISCC-CODE")
+class IsccResponse(ModelSchema):
+
+    filename: Optional[str] = Field(
+        ...,
+        alias="source_file_name",
+        description="Filename of the source used to create the ISCC",
+    )
+
+    class Config:
+        model = IsccCode
+        model_fields = ["iscc", "name", "description"]
+
+
+class TaskResponse(ModelSchema):
+    class Config:
+        model = Task
+        model_fields = [
+            "id",
+            "result",
+            "started",
+            "stopped",
+            "success",
+            "attempt_count",
+        ]
+
+
+@router.post(
+    "/iscc_code",
+    response={200: IsccResponse, 202: TaskResponse},
+    summary="Generate ISCC-CODE",
+    tags=["iscc_code"],
+)
 def generate_iscc_code(
     request,
     source_file: Optional[UploadedFile] = File(None),
-    meta: IsccTaskRequest = Form(...),
+    meta: IsccRequest = Form(...),
 ):
-    """Generate an ISCC from a file upload or URL."""
-    if source_file:
-        media_obj = Media.objects.create(name=source_file.name, file=source_file)
-        iscc_task_obj = IsccTask.objects.create(
-            source_file=media_obj, metadata=meta.dict(exclude={"source_url"})
-        )
-    elif meta.source_url:
-        iscc_task_obj = IsccTask.objects.create(
-            source_url=meta.source_url, metadata=meta.dict()
-        )
-    else:
-        raise HttpError(400, "Bad Request - either source_file or source_url required")
-    djq_task_id = async_task(create_iscc_code, iscc_task_obj.id)
-    iscc_task_obj.task_id = djq_task_id
-    iscc_task_obj.save()
-    return iscc_task_obj
+    """
+    ## Generate an ISCC for a media asset.
+    """
+    metadata = meta.dict()
+    ico = IsccCode.objects.create(source_file=source_file, **metadata)
+    djq_task_id = async_task(create_iscc_code, ico.id)
+    task_result = result(djq_task_id, config.PROCESSING_TIMEOUT)
+    if task_result:
+        return 200, IsccCode.objects.get(id=ico.id)
+    return 202, Task.objects.get(id=djq_task_id)

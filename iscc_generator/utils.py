@@ -2,8 +2,6 @@
 import random
 import time
 
-from blake3 import blake3
-
 
 FLAKE_START_TIME = 1609459200
 FLAKE_RANDOM_LENGTH = 23
@@ -21,10 +19,3 @@ def make_flake() -> int:
     randomness = random.SystemRandom().getrandbits(FLAKE_RANDOM_LENGTH)
     flake = (millisecond_time << FLAKE_TIMESTAMP_SHIFT) + randomness
     return flake
-
-
-def hash_name(instance, filename):
-    hasher = blake3()
-    for chunk in instance.file.chunks():
-        hasher.update(chunk)
-    return hasher.hexdigest()
