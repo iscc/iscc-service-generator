@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+import time
 from typing import Optional
-
 from django_q.tasks import async_task, result
 from django_q.models import Task
-from ninja import Router, UploadedFile, File, Form, ModelSchema
-from pydantic import Field
+from ninja import Router, UploadedFile, File, Form, ModelSchema, Schema, Field
 
 from iscc_generator.models import IsccCode
 from iscc_generator.tasks import create_iscc_code
@@ -38,7 +37,6 @@ class TaskResponse(ModelSchema):
         model = Task
         model_fields = [
             "id",
-            "result",
             "started",
             "stopped",
             "success",
@@ -49,6 +47,7 @@ class TaskResponse(ModelSchema):
 @router.post(
     "/iscc_code",
     response={200: IsccResponse, 202: TaskResponse},
+    exclude_defaults=True,
     summary="Generate ISCC-CODE",
     tags=["iscc_code"],
 )
@@ -60,10 +59,13 @@ def generate_iscc_code(
     """
     ## Generate an ISCC for a media asset.
     """
-    metadata = meta.dict()
-    ico = IsccCode.objects.create(source_file=source_file, **metadata)
+    ico = IsccCode.objects.create(source_file=source_file, **meta.dict())
     djq_task_id = async_task(create_iscc_code, ico.id)
     task_result = result(djq_task_id, config.PROCESSING_TIMEOUT)
     if task_result:
-        return 200, IsccCode.objects.get(id=ico.id)
-    return 202, Task.objects.get(id=djq_task_id)
+        return IsccCode.objects.get(id=ico.id)
+    task = None
+    while not task:
+        task = Task.get_task(djq_task_id)
+        time.sleep(1)
+    return 202, task
