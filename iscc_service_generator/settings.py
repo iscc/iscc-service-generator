@@ -157,8 +157,8 @@ Q_CLUSTER = {
 
 CONSTANCE_CONFIG = {
     "PROCESSING_TIMEOUT": (
-        5,
-        "Number of seconds to wait for a background task before returning an async task instead",
+        1000,
+        "Number of milliseconds to wait for a background task before returning an async task instead",
     ),
     "ENABLE_LIST_ENDPOINTS": (
         False,
