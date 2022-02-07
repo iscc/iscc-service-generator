@@ -75,6 +75,7 @@ class IsccCode(GeneratorBaseModel):
     name = models.CharField(
         verbose_name=_("name"),
         max_length=128,
+        default="",
         blank=True,
         help_text=_(
             "The title or name of the work manifested by the media asset. "
@@ -83,6 +84,7 @@ class IsccCode(GeneratorBaseModel):
     )
     description = models.TextField(
         verbose_name=_("description"),
+        default="",
         blank=True,
         max_length=4096,
         help_text=_(
