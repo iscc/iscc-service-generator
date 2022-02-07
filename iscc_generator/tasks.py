@@ -3,18 +3,15 @@ import iscc
 
 
 def create_iscc_code(task_id):
-    from iscc_generator.models import IsccTask, IsccCode
+    from iscc_generator.models import IsccCode
 
-    task_obj = IsccTask.objects.get(id=task_id)
+    iscc_code_obj = IsccCode.objects.get(id=task_id)
     iscc_result = iscc.code_iscc(
-        task_obj.source_file.file.path,
-        title=task_obj.metadata.get("name"),
-        extra=task_obj.metadata.get("description"),
+        iscc_code_obj.source_file.path,
+        title=iscc_code_obj.name,
+        extra=iscc_code_obj.description,
     )
-    IsccCode.objects.create(
-        iscc=iscc_result["iscc"],
-        name=iscc_result.get("title"),
-        description=iscc_result.get("description"),
-        metadata=iscc_result.get("metadata"),
-    )
+    iscc_code_obj.iscc = iscc_result["iscc"]
+    iscc_code_obj.result = iscc_result
+    iscc_code_obj.save()
     return iscc_result
