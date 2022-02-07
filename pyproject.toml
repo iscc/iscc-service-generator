@@ -27,6 +27,7 @@ black = "^22.1.0"
 poethepoet = "^0.12.2"
 mkdocs-material = "^8.1.9"
 pytest = "^6.2.5"
+openapi-python-client = "^0.11.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
