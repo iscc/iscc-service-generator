@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
-import json
-import pathlib
-import sys
+from django.core.files.uploadedfile import SimpleUploadedFile
 import iscc_service_generator
+from ninja.testing import TestClient
+from iscc_generator.api_v1 import router
 
-ROOT = pathlib.Path(sys.path[1]).absolute()
-HERE = pathlib.Path(__file__).parent.absolute()
 
-MEDIA = (
-    HERE.parent.absolute() / ".scratch/media/admin-interface/logo/iscc-logo-blue-bg.png"
-)
+client = TestClient(router)
 
 
 def test_project_version():
     assert iscc_service_generator.__version__ == "0.1.0"
 
 
-def test_api_generate_iscc(client, live_server):
-    url = live_server.url + "/api/iscc_code"
-    with open(MEDIA, "rb") as infile:
-        response = client.post(
-            url,
-            {
-                "source_file": infile,
-                "name": "Some title",
-                "description": "Somedescription",
-            },
-        )
+def test_api_generate_iscc_file_only(live_server):
+    file = SimpleUploadedFile("test.txt", b"data123")
+    response = client.post("/iscc_code", FILES={"source_file": file})
+    assert response.status_code == 200
+    assert response.json() == {
+        "filename": "test.txt",
+        "iscc": "KADR7VAIQA6XMAJYVUHPKVEVRHUQVLIO6VKJLCPJBL2UWXKVOGJZJBQ",
+    }
 
-    assert json.loads(response.content) == {
-        "description": "Somedescription",
-        "filename": "iscc-logo-blue-bg.png",
-        "iscc": "KEDQIPKHHOMBZZK32DAANP3ZJ6DHGEIAR3GWSEVO5LDC4UEDZ7FQPTA",
+
+def test_api_generate_iscc(live_server):
+    file = SimpleUploadedFile("test.txt", b"data123")
+    response = client.post(
+        "/iscc_code",
+        data={"name": "Some title", "description": "Other Description"},
+        FILES={"source_file": file},
+    )
+    assert response.json() == {
+        "description": "Other Description",
+        "filename": "test.txt",
+        "iscc": "KADQIPKHHONBZYD7VUHPKVEVRHUQVLIO6VKJLCPJBL2UWXKVOGJZJBQ",
         "name": "Some title",
     }
