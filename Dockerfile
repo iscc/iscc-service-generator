@@ -24,8 +24,7 @@ COPY pyproject.toml poetry.lock /app/
 
 FROM builder AS dev-runtime
 
-RUN poetry install && \
-  poetry run python -c "import iscc; iscc.bin.install()"
+RUN poetry install
 
 COPY docker/entrypoint-dev.sh /app/docker/
 ENTRYPOINT [ "docker/entrypoint-dev.sh" ]
