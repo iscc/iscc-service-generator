@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import iscc
+from constance import config
 
 
 def create_iscc_code(task_id):
@@ -10,6 +11,7 @@ def create_iscc_code(task_id):
         iscc_code_obj.source_file.path,
         title=iscc_code_obj.name,
         extra=iscc_code_obj.description,
+        all_granular=config.ENABLE_GRANULAR_FEATURES,
     )
     iscc_code_obj.iscc = iscc_result["iscc"]
     iscc_code_obj.result = iscc_result

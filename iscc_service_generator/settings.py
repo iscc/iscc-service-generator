@@ -143,6 +143,15 @@ FIXTURE_DIRS = [BASE_DIR / "iscc_service_generator/fixtures"]
 X_FRAME_OPTIONS = "SAMEORIGIN"
 SILENCED_SYSTEM_CHECKS = ["security.W019"]
 
+
+# TODO: check if chache is required by django-q
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+#         "LOCATION": "cache_table",
+#     }
+# }
+
 Q_CLUSTER = {
     "name": "DjangORM",
     "workers": 4,
@@ -156,6 +165,7 @@ Q_CLUSTER = {
 
 
 CONSTANCE_CONFIG = {
+    "ENABLE_GRANULAR_FEATURES": (False, "Calculate granular features for media assets"),
     "PROCESSING_TIMEOUT": (
         1000,
         "Number of milliseconds to wait for a background task before returning an async task instead",
