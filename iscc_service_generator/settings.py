@@ -165,6 +165,7 @@ Q_CLUSTER = {
 
 
 CONSTANCE_CONFIG = {
+    "PREVIEW_IMAGE_SIZE": (128, "Size of generated preview images in number of pixels"),
     "ENABLE_GRANULAR_FEATURES": (False, "Calculate granular features for media assets"),
     "PROCESSING_TIMEOUT": (
         1000,
