@@ -3,6 +3,9 @@ from django.contrib.admin import AdminSite
 
 
 class IsccAdminSite(AdminSite):
+
+    site_url = "/api/docs"
+
     def get_app_list(self, request):
         """Customize admin app names and ordering"""
         applist = super().get_app_list(request)
