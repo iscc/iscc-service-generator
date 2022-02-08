@@ -415,7 +415,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "iscc"
-version = "1.1.0b15"
+version = "1.1.0b16"
 description = "ISCC: Reference Implementation"
 category = "main"
 optional = false
@@ -1070,7 +1070,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "84f16da3a3d0ceaaf6d64241d13db1ff7978023cfa1e1f454b9a569c8155ba72"
+content-hash = "ccfc527e892edc4b74d44a5be8155330c0c85a8feb46ab3c2e0bd5e26d1fe505"
 
 [metadata.files]
 annoy = [
@@ -1312,7 +1312,7 @@ install-jdk = [
     {file = "install-jdk-0.3.0.tar.gz", hash = "sha256:889965b0af68bb4669166804f33d5dce9cd6cf57f02a045e427e508998d569a1"},
 ]
 iscc = [
-    {file = "iscc-1.1.0b15.tar.gz", hash = "sha256:6a0c54c0af2fb60845d5807199961b5ac61e223b6ec9dc50e5ab282943d54ddd"},
+    {file = "iscc-1.1.0b16.tar.gz", hash = "sha256:014b0b98282ead59840fbe31dfc141f25568aa35a56d455fef8b97fe65e6cd78"},
 ]
 iscc-core = [
     {file = "iscc-core-0.1.9.tar.gz", hash = "sha256:f9783472c0bf407c58daa0bb1d49cc1b60398b351f2cd2a985d8b690a3f098b9"},
