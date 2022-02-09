@@ -22,6 +22,8 @@ class GeneralSettings(BaseSettings):
     FIXTURE_DIRS: List[str] = [
         (BASE_DIR / "iscc_service_generator/fixtures").as_posix()
     ]
+    CSRF_TRUSTED_ORIGINS: List[str] = ["*"]
+    USE_X_FORWARDED_HOST: bool = True
     DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
     SECRET_KEY: str = Field(default=Undefined, env="DJANGO_SECRET_KEY")
     DEBUG: bool = Field(default=False, env="DEBUG")
