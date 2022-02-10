@@ -55,7 +55,9 @@ class TaskResponse(Schema):
 )
 async def generate_iscc_code(
     request,
-    source_file: Optional[UploadedFile] = File(None),
+    source_file: Optional[UploadedFile] = File(
+        None, description="The file used for generating the ISCC"
+    ),
     meta: IsccRequest = Form(...),
 ):
     """
