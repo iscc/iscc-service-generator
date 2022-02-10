@@ -41,10 +41,10 @@ class IsccCode(GeneratorBaseModel):
 
     source_file = models.FileField(
         verbose_name=_("source file"),
-        null=True,
         blank=True,
+        default="",
         upload_to=hash_name,
-        help_text=_("Original media asset for ISCC code generation."),
+        help_text=_("The file used for generating the ISCC"),
     )
 
     source_file_name = models.CharField(
@@ -70,6 +70,13 @@ class IsccCode(GeneratorBaseModel):
         null=True,
         editable=False,
         help_text=_("The filesize of the media asset"),
+    )
+
+    source_url = models.URLField(
+        verbose_name=_("source_url"),
+        blank=True,
+        max_length=4096,
+        help_text=_("URL of file used for generating the ISCC"),
     )
 
     name = models.CharField(
@@ -111,10 +118,11 @@ class IsccCode(GeneratorBaseModel):
             return humanize.naturalsize(self.source_file_size, binary=True)
 
     def save(self, *args, **kwargs):
-        """Intercept new file uploads"""
-        new_upload = isinstance(self.source_file.file, UploadedFile)
-        if new_upload:
-            self.source_file_name = self.source_file.file.name
-            self.source_file_mediatype = self.source_file.file.content_type
-            self.source_file_size = self.source_file.size
+        """Intercept new file uploads to set file properties and trigger ISCC processing"""
+        if self.source_file:
+            new_upload = isinstance(self.source_file.file, UploadedFile)
+            if new_upload:
+                self.source_file_name = self.source_file.file.name
+                self.source_file_mediatype = self.source_file.file.content_type
+                self.source_file_size = self.source_file.size
         super().save(*args, **kwargs)
