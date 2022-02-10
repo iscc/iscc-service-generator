@@ -9,3 +9,6 @@ coverage.xml
 
 # direnv
 .envrc
+
+# staging deployment
+.env_prod_*

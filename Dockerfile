@@ -13,7 +13,6 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 ENV POETRY_NO_INTERACTION=1 \
   POETRY_VIRTUALENVS_PATH=/venvs
 
-
 # Install Poetry and create venv
 RUN pip install -U pip wheel setuptools && \
   pip install "poetry==$POETRY_VERSION"
@@ -21,6 +20,10 @@ RUN pip install -U pip wheel setuptools && \
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock /app/
+
+#
+# dev-runtime
+#
 
 FROM builder AS dev-runtime
 
@@ -34,3 +37,55 @@ ENTRYPOINT [ "docker/entrypoint-dev.sh" ]
 EXPOSE 8000/tcp
 
 CMD ["poetry", "run", "uvicorn", "iscc_service_generator.asgi:application", "--host=0.0.0.0", "--reload"]
+
+#
+# prod-build
+#
+
+FROM builder AS prod-build
+
+RUN python -m venv /venv && . /venv/bin/activate && poetry install --no-dev --no-root
+
+RUN /venv/bin/python -c "import iscc; iscc.bin.install()"
+
+COPY . /app/
+
+#
+# prod-runtime
+#
+
+FROM python:3.9-slim AS prod-runtime
+
+RUN apt-get update && apt-get install --no-install-recommends -y libmagic1 libpq5 && rm -rf /var/lib/apt/lists
+
+# Disable stdout/stderr buggering, can cause issues with Docker logs
+ENV PYTHONUNBUFFERED=1
+
+ENV PATH="/venv/bin:$PATH"
+ENV VIRTUAL_ENV=/venv
+
+COPY --from=prod-build /root/.config/iscc /root/.config/iscc
+COPY --from=prod-build /app /app
+COPY --from=prod-build /venv /venv
+
+WORKDIR /app
+
+ENTRYPOINT [ "docker/entrypoint-prod.sh" ]
+
+#
+# prod-runtime-backend
+#
+
+FROM prod-runtime AS prod-runtime-backend
+
+EXPOSE 8000/tcp
+
+CMD ["uvicorn", "iscc_service_generator.asgi:application", "--host=0.0.0.0"]
+
+#
+# prod-runtime-worker
+#
+
+FROM prod-runtime AS prod-runtime-worker
+
+CMD ["python", "manage.py", "qcluster"]

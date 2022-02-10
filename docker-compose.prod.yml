@@ -1,0 +1,64 @@
+version: "3.8"
+
+networks:
+  web:
+    external: true
+  iscc-service-generator:
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    init: true
+    user: "65534"
+    env_file:
+      - .env_prod_secret_postgres
+    volumes:
+      - /srv/docker/iscc/postgres:/var/lib/postgresql/data
+    networks:
+      - iscc-service-generator
+
+  backend:
+    build:
+      context: .
+      target: prod-runtime-backend
+    restart: always
+    init: true
+    depends_on:
+      - db
+    volumes:
+      - ./.scratch:/app/.scratch
+    networks:
+      - iscc-service-generator
+      - web
+    environment:
+      ALLOWED_HOSTS: "[\"api-test.iscc.id\"]"
+      CSRF_TRUSTED_ORIGINS: "[\"https://api-test.iscc.id\"]"
+      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
+    env_file:
+      - .env_prod_secret_django
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.plausible.rule: "Host(`api-test.iscc.id`)" # change to your domain name
+      traefik.http.routers.plausible.entrypoints: "websecure"
+      traefik.http.routers.plausible.tls.certresolver: "myresolver"
+      traefik.http.services.plausible.loadbalancer.server.port: "8000"
+
+  worker:
+    build:
+      context: .
+      target: prod-runtime-worker
+    restart: always
+    init: true
+    depends_on:
+      - db
+    environment:
+      ALLOWED_HOSTS: "[\"api-test.iscc.id\"]"
+      CSRF_TRUSTED_ORIGINS: "[\"https://api-test.iscc.id\"]"
+      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
+    env_file:
+      - .env_prod_secret_django
+    volumes:
+      - ./.scratch:/app/.scratch
+    networks:
+      - iscc-service-generator

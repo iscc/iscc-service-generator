@@ -2,3 +2,8 @@
 __pycache__
 Dockerfile
 docker-compose.yml
+docker-compose.*.yml
+.scratch
+
+# staging deployment
+.env_prod_*
