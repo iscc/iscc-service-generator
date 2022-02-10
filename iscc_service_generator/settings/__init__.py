@@ -132,7 +132,7 @@ class ConstanceSettings(BaseSettings):
     CONSTANCE_CONFIG: Dict = {
         "PREVIEW_IMAGE_SIZE": (
             128,
-            "Size of generated preview images in number of pixels",
+            "Size of generated preview images in number of pixels (not implemented yet)",
         ),
         "ENABLE_GRANULAR_FEATURES": (
             False,
@@ -145,17 +145,17 @@ class ConstanceSettings(BaseSettings):
         "ENABLE_LIST_ENDPOINTS": (
             False,
             "Enables REST Api endpoints that can list objects "
-            "(do not enable on public instances without authentication)",
+            "(do not enable on public instances without authentication) (not implemented yet)",
         ),
         "RESULT_HOOK_URL": (
             "none",
             "An URL to which the background processing results should be deliverd "
-            "(must be a an endpoint accepting POST requests with a json body)",
+            "(must be a an endpoint accepting POST requests with a json body) (not implemented yet)",
             "url_field",
         ),
         "RATE_LIMIT": (
             "16/m",
-            "IP based rate limit for API calls",
+            "IP based rate limit for API calls (not implemented yet)",
             "rate_limit_field",
         ),
     }
