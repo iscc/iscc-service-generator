@@ -25,6 +25,7 @@ django-object-actions = "^3.1.0"
 dj-database-url = "^0.5.0"
 pydantic = {extras = ["dotenv"], version = "*"}
 psycopg2 = "^2.9.3"
+iscc-schema = "^0.3.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
