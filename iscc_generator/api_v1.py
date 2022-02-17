@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+import json
 from datetime import datetime
+from json import JSONDecodeError
 from typing import Optional
 from asgiref.sync import sync_to_async
 from django_q.tasks import async_task, result
 from django_q.models import Task, OrmQ
 from ninja import Router, UploadedFile, File, Form, ModelSchema, Schema, Field
+from loguru import logger as log
 from iscc_generator.models import IsccCode
 from iscc_generator.tasks import create_iscc_code
 from constance import config
@@ -20,20 +23,20 @@ class Message(Schema):
 class IsccRequest(ModelSchema):
     class Config:
         model = IsccCode
-        model_fields = ["source_url", "name", "description"]
+        model_fields = ["source_url", "name", "description", "metadata"]
 
 
 class IsccResponse(ModelSchema):
 
     filename: Optional[str] = Field(
-        ...,
+        None,
         alias="source_file_name",
         description="Filename of the source used to create the ISCC",
     )
 
     class Config:
         model = IsccCode
-        model_fields = ["iscc", "name", "description"]
+        model_fields = ["iscc", "name", "description", "metadata"]
 
 
 class TaskResponse(Schema):
@@ -50,8 +53,9 @@ class TaskResponse(Schema):
     "/iscc_code",
     response={200: IsccResponse, 202: TaskResponse, 400: Message, 503: Message},
     exclude_defaults=True,
-    summary="Generate ISCC-CODE",
+    summary="Create ISCC-CODE",
     tags=["iscc_code"],
+    operation_id="create-iscc-code",
 )
 async def generate_iscc_code(
     request,
@@ -75,7 +79,7 @@ async def generate_iscc_code(
     task_id = await async_create_task(ico.pk)
     task_result = await async_wait_for_task(task_id)
     if task_result:
-        obj = await async_get_iscc_code(ico.pk)
+        obj = await async_get_iscc_code(pk=ico.pk)
         return 200, obj
     else:
         task = await async_find_task(task_id)
@@ -85,10 +89,32 @@ async def generate_iscc_code(
 
 
 @router.get(
+    "/iscc_code/{iscc}",
+    response={200: IsccResponse, 404: Message},
+    exclude_defaults=False,
+    exclude_none=True,
+    exclude_unset=True,
+    summary="Get ISCC-CODE",
+    tags=["iscc_code"],
+    operation_id="get-iscc-code",
+)
+async def get_iscc_code(request, iscc: str):
+    """
+    Returns metadata for previously generated ISCC-CODE
+    """
+    iscc_code_obj = await async_get_iscc_code(iscc=iscc)
+    if iscc_code_obj:
+        return iscc_code_obj
+    else:
+        return 404, Message(message="ISCC not found")
+
+
+@router.get(
     "/task/{task_id}",
     response={200: TaskResponse, 404: Message},
     exclude_none=True,
-    tags=["iscc_code"],
+    tags=["task"],
+    operation_id="get-task",
 )
 async def get_task(request, task_id: str):
     task = await async_find_task(task_id)
@@ -103,7 +129,15 @@ async def get_task(request, task_id: str):
 
 
 @sync_to_async
-def async_create_iscc_code(source_file, meta):
+def async_create_iscc_code(source_file, meta: IsccRequest):
+
+    # Decode json metadata
+    try:
+        meta.metadata = json.loads(meta.metadata)
+    except JSONDecodeError:
+        log.warning(f"failed to decode metadata {meta.metadata}")
+        metadata = None
+    #
     if source_file:
         return IsccCode.objects.create(source_file=source_file, **meta.dict())
     else:
@@ -134,5 +168,11 @@ def async_find_task(task_id):
 
 
 @sync_to_async
-def async_get_iscc_code(pk):
-    return IsccCode.objects.get(pk=pk)
+def async_get_iscc_code(pk: Optional[int] = None, iscc: Optional[str] = None):
+    try:
+        if pk:
+            return IsccCode.objects.get(pk=pk)
+        elif iscc:
+            return IsccCode.objects.get(iscc=iscc)
+    except IsccCode.DoesNotExist:
+        return None
