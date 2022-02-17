@@ -2,6 +2,7 @@ import humanize
 from blake3 import blake3
 from django.core.files.uploadedfile import UploadedFile
 from django.db import models
+from django.utils.html import format_html
 from model_utils.models import TimeStampedModel
 from django.utils.translation import gettext_lazy as _
 from django.contrib import admin
@@ -22,7 +23,7 @@ def hash_name(instance, filename):
     hasher = blake3()
     for chunk in instance.source_file.chunks():
         hasher.update(chunk)
-    return hasher.hexdigest()
+    return hasher.hexdigest() + "/" + filename
 
 
 class IsccCode(GeneratorBaseModel):
@@ -51,6 +52,7 @@ class IsccCode(GeneratorBaseModel):
         verbose_name=_("filename"),
         blank=True,
         max_length=255,
+        default="",
         editable=False,
         help_text=_("Original filename from upload (autoset / untrusted)"),
     )
@@ -59,6 +61,7 @@ class IsccCode(GeneratorBaseModel):
         verbose_name=_("mediatype"),
         blank=True,
         max_length=255,
+        default="",
         editable=False,
         help_text=_(
             "Original IANA Media Type (MIME type) from upload (autoset / untrusted)"
@@ -69,12 +72,14 @@ class IsccCode(GeneratorBaseModel):
         verbose_name=_("filesize"),
         null=True,
         editable=False,
+        default=0,
         help_text=_("The filesize of the media asset"),
     )
 
     source_url = models.URLField(
         verbose_name=_("source_url"),
         blank=True,
+        default="",
         max_length=4096,
         help_text=_("URL of file used for generating the ISCC"),
     )
@@ -100,10 +105,27 @@ class IsccCode(GeneratorBaseModel):
         ),
     )
 
+    metadata = models.JSONField(
+        verbose_name=_("metadata"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("Metadata for Meta-Code"),
+    )
+
+    embed = models.JSONField(
+        verbose_name=_("embed"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("Fields for embedding"),
+    )
+
     result = models.JSONField(
         verbose_name=_("result"),
         null=True,
         blank=True,
+        default=None,
         help_text=_("The result returned by the ISCC generator"),
     )
 
@@ -116,6 +138,10 @@ class IsccCode(GeneratorBaseModel):
     def source_file_size_human(self):
         if self.source_file_size:
             return humanize.naturalsize(self.source_file_size, binary=True)
+
+    @admin.display(ordering="iscc", description="iscc")
+    def iscc_monospaced(self):
+        return format_html(f'<span style="font-family: monospace">{self.iscc}</span>')
 
     def save(self, *args, **kwargs):
         """Intercept new file uploads to set file properties and trigger ISCC processing"""
