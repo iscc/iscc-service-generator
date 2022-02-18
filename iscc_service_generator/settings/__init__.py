@@ -117,7 +117,6 @@ class MediaSettings(BaseSettings):
 class QClusterSettings(BaseSettings):
     Q_CLUSTER: Dict = {
         "name": "DjangORM",
-        "workers": 4,
         "timeout": 90,
         "retry": 120,
         "queue_limit": 50,
