@@ -117,12 +117,16 @@ class MediaSettings(BaseSettings):
 class QClusterSettings(BaseSettings):
     Q_CLUSTER: Dict = {
         "name": "DjangORM",
-        "timeout": 90,
-        "retry": 120,
-        "queue_limit": 50,
+        "max_attempts": 1,
+        "timeout": 3600,
+        "retry": 3700,
+        "save_limit": 0,
         "bulk": 10,
         "orm": "default",
-        "sync": True,
+        "sync": False,
+        "label": "Background Tasks",
+        "catch_up": False,
+        "daemonize_workers": False,
     }
 
 
