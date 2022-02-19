@@ -1,0 +1,50 @@
+version: "3.8"
+
+volumes:
+  scratch:
+  db:
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    init: true
+    environment:
+      POSTGRES_USER: iscc
+      POSTGRES_PASSWORD: generator
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      target: prod-runtime-backend
+    restart: always
+    init: true
+    depends_on:
+      - db
+    volumes:
+      - scratch:/app/.scratch
+    ports:
+      - 127.0.0.1:8000:8000
+    environment:
+      ALLOWED_HOSTS: "[\"localhost\"]"
+      CSRF_TRUSTED_ORIGINS: "[\"http://localhost:8000\"]"
+      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
+      DATABASE_URL: postgres://iscc:generator@db/iscc
+
+  worker:
+    build:
+      context: .
+      target: prod-runtime-worker
+    restart: always
+    init: true
+    depends_on:
+      - db
+    environment:
+      ALLOWED_HOSTS: "[\"localhost\"]"
+      CSRF_TRUSTED_ORIGINS: "[\"http://localhost:8000\"]"
+      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
+      DATABASE_URL: postgres://iscc:generator@db/iscc
+    volumes:
+      - scratch:/app/.scratch
