@@ -27,8 +27,13 @@ To start a demo production environment:
 2. Build docker images: `docker compose -f docker-compose.demo-prod.yml build`
 3. Run Docker containers: `docker compose -f docker-compose.demo-prod.yml up`
 4. Wait for backend container to start (`Application startup complete` in log)
-5. In a separate shell, provision with development data: `docker compose -f docker-compose.demo-prod.yml exec backend python -m dev.install`
-6. Access the environment via `http://localhost:8000/`
+5. Access interactive Rest API docs via http://localhost:8000/api/docs
+
+Optional: To get access to the operator dashboard
+
+6. In a separate shell run: `docker compose -f docker-compose.demo-prod.yml exec backend python -m dev.install`
+7. See user account information in output
+8. Access operator dashboard via `http://localhost:8000/`
 
 To remove all data: `docker compose -f docker-compose.demo-prod.yml down -v`
 

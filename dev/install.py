@@ -11,41 +11,34 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "iscc_service_generator.settings
 from django.contrib.auth import get_user_model
 from django.core import management
 import django
+import secrets
 
 django.setup()
 
 
 def migrate():
-    management.call_command("makemigrations")
     management.call_command("migrate")
-
-
-def load_fixtures():
-    management.call_command(
-        "loaddata", "--app", "admin_interface.Theme", "admin_interface_theme_iscc"
-    )
 
 
 def create_demo_user():
     User = get_user_model()
-    if User.objects.exists():
+    if User.objects.filter(is_superuser=True):
+        print("\n\nSuperuser already exists, skipped creating another one.")
         return
     username = "demo"
-    password = "demo"
+    password = secrets.token_hex(16)
     email = "demo@eexample.com"
     User.objects.create_superuser(username=username, password=password, email=email)
+    print("\n\nCreated superuser!")
+    print(f"Username: {username}")
+    print(f"Password: {password}")
+    print(f"Login at http://localhost:8000")
+    print(f"Check interactive Rest API docs at http://localhost:8000/api/docs")
 
 
 def install():
     migrate()
-    load_fixtures()
     create_demo_user()
-    print(
-        "\n\nISCC Generator Service installed successfully.\n"
-        '- Start development server with "python manage.py runserver".\n'
-        '- Login to dashboard at http://127.0.0.1:8000 with user "demo" and password "demo"\n'
-        "- Test the REST api at http://127.0.0.1:8000/api/docs"
-    )
 
 
 if __name__ == "__main__":
