@@ -25,13 +25,10 @@ To start a demo production environment:
 
 1. Clone the repository:
 2. Build docker images: `docker compose -f docker-compose.demo-prod.yml build`
-3. Run Docker containers: `docker compose -f docker-compose.demo-prod.yml up -d`
-4. Provision with development data: `docker compose -f docker-compose.demo-prod.yml exec backend python -m dev.install`
-5. Access the environment via `http://localhost:8000/`
-
-To inspect container logs:  `docker compose -f docker-compose.demo-prod.yml logs`
-
-To stop the environment:   `docker compose -f docker-compose.demo-prod.yml stop`
+3. Run Docker containers: `docker compose -f docker-compose.demo-prod.yml up`
+4. Wait for backend container to start (`Application startup complete` in log)
+5. In a separate shell, provision with development data: `docker compose -f docker-compose.demo-prod.yml exec backend python -m dev.install`
+6. Access the environment via `http://localhost:8000/`
 
 To remove all data: `docker compose -f docker-compose.demo-prod.yml down -v`
 

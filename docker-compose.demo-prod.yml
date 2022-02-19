@@ -31,6 +31,7 @@ services:
       ALLOWED_HOSTS: "[\"localhost\"]"
       CSRF_TRUSTED_ORIGINS: "[\"http://localhost:8000\"]"
       Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
+      AUTO_MIGRATE: "true"
       DATABASE_URL: postgres://iscc:generator@db/iscc
 
   worker:
