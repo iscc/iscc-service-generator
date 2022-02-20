@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-poetry install --ansi
-poetry run python manage.py migrate --force-color
+if [ "${AUTO_MIGRATE-false}" == "true" ]; then
+    poetry run python manage.py migrate --force-color
+fi
 
 exec "$@"
