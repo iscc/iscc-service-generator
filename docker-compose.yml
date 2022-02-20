@@ -36,8 +36,8 @@ services:
     init: true
     depends_on:
       - db
+      - backend
     environment:
       DATABASE_URL: postgres://iscc:generator@db/iscc
-      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
     volumes:
       - .:/app
