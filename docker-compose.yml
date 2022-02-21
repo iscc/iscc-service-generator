@@ -23,7 +23,6 @@ services:
     environment:
       DATABASE_URL: postgres://iscc:generator@db/iscc
       AUTO_MIGRATE: "true"
-      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
     ports:
       - 127.0.0.1:8000:8000
     volumes:
