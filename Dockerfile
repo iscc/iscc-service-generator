@@ -34,9 +34,27 @@ RUN poetry run python -c "import iscc; iscc.bin.install()"
 COPY docker/entrypoint-dev.sh /app/docker/
 ENTRYPOINT [ "docker/entrypoint-dev.sh" ]
 
+#
+# dev-runtime-backend
+#
+
+FROM dev-runtime AS dev-runtime-backend
+
 EXPOSE 8000/tcp
 
 CMD ["poetry", "run", "uvicorn", "iscc_service_generator.asgi:application", "--host=0.0.0.0", "--reload"]
+
+#
+# dev-runtime-worker
+#
+
+FROM dev-runtime AS dev-runtime-worker
+
+RUN apt-get update && apt-get install -y inotify-tools pslist && rm -rf /var/lib/apt/lists
+
+COPY docker/qcluster-autoreload.sh /app/docker/
+
+CMD ["docker/qcluster-autoreload.sh"]
 
 #
 # prod-build

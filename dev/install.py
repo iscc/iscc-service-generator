@@ -20,13 +20,16 @@ def migrate():
     management.call_command("migrate")
 
 
-def create_demo_user():
+def create_demo_user(secure=True):
     User = get_user_model()
     if User.objects.filter(is_superuser=True):
         print("\n\nSuperuser already exists, skipped creating another one.")
         return
     username = "demo"
-    password = secrets.token_hex(16)
+    if secure:
+        password = secrets.token_hex(16)
+    else:
+        password = "demo"
     email = "demo@eexample.com"
     User.objects.create_superuser(username=username, password=password, email=email)
     print("\n\nCreated superuser!")
@@ -36,9 +39,10 @@ def create_demo_user():
     print(f"Check interactive Rest API docs at http://localhost:8000/api/docs")
 
 
+
 def install():
     migrate()
-    create_demo_user()
+    create_demo_user(secure=True)
 
 
 if __name__ == "__main__":

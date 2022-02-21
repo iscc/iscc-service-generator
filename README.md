@@ -8,6 +8,20 @@ Under development ...
 
 # Development Quickstart
 
+## With docker
+
+```shell
+git clone https://github.com/iscc/iscc-service-generator.git
+cd iscc-service-generator
+docker compose build
+docker compose up
+```
+
+- Access interactive Rest API docs via http://localhost:8000/api/docs
+- Access operator dashboard at http://localhost:8000 with user `demo` password `demo`
+
+
+## With local Python environment
 Assuming you have a working Python environment with
 [Poetry](https://python-poetry.org/docs/#installation) installed you can get started
 with:
@@ -18,6 +32,7 @@ cd iscc-service-generator
 poetry install
 poe install
 ```
+
 
 # Demo production environment
 

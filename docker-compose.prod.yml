@@ -34,7 +34,6 @@ services:
     environment:
       ALLOWED_HOSTS: "[\"api-test.iscc.id\"]"
       CSRF_TRUSTED_ORIGINS: "[\"https://api-test.iscc.id\"]"
-      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
       AUTO_MIGRATE: "true"
     env_file:
       - .env_prod_secret_django
@@ -56,7 +55,6 @@ services:
     environment:
       ALLOWED_HOSTS: "[\"api-test.iscc.id\"]"
       CSRF_TRUSTED_ORIGINS: "[\"https://api-test.iscc.id\"]"
-      Q_CLUSTER: "{ \"orm\": \"default\", \"sync\": false}"
     env_file:
       - .env_prod_secret_django
     volumes:
