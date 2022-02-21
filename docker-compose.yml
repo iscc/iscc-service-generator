@@ -38,5 +38,6 @@ services:
       - backend
     environment:
       DATABASE_URL: postgres://iscc:generator@db/iscc
+      WAIT_FOR_MIGRATIONS: "true"
     volumes:
       - .:/app
