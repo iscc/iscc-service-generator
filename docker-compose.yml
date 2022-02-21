@@ -22,7 +22,7 @@ services:
       - db
     environment:
       DATABASE_URL: postgres://iscc:generator@db/iscc
-      AUTO_MIGRATE: "true"
+      AUTO_MIGRATE_AND_INSTALL: "true"
     ports:
       - 127.0.0.1:8000:8000
     volumes:
