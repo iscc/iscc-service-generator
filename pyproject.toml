@@ -25,6 +25,7 @@ django-object-actions = "^3.1"
 dj-database-url = "^0.5"
 pydantic = {extras = ["dotenv"], version = "1.9"}
 psycopg2 = "^2.9"
+requests = "^2.27.1"
 
 
 [tool.poetry.dev-dependencies]
