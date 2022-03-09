@@ -29,7 +29,7 @@ FROM builder AS dev-runtime
 
 RUN poetry install
 
-RUN poetry run python -c "import iscc; iscc.bin.install()"
+RUN poetry run python -c "import iscc_sdk; iscc_sdk.tools.install()"
 
 COPY docker/entrypoint-dev.sh /app/docker/
 ENTRYPOINT [ "docker/entrypoint-dev.sh" ]

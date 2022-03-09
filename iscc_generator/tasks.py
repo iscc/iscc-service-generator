@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
 from urllib.parse import urlparse
-
-import iscc
 import requests
 from blake3 import blake3
-from constance import config
 from django.conf import settings
 import secrets
+import iscc_sdk as idk
 
 
 def create_iscc_code(pk: int):
-    """Create an ISCC Code for an IsccCode database object.
+    """
+    Create an ISCC Code for an IsccCode database object.
 
     :param int pk: Primary key of the IsccCode entry
     :return: The result of the ISCC processor
@@ -35,21 +34,18 @@ def create_iscc_code(pk: int):
         remote_name = os.path.basename(url_obj.path or url_obj.netloc)
         obj.source_file_name = remote_name
         # media type
-        obj.source_file_mediatype = iscc.mediatype.mime_guess(filepath, remote_name)
+        obj.source_file_mediatype = idk.mediatype_guess(open(filepath, 'wb').read(4096), remote_name)
         # file size
         obj.source_file_size = os.path.getsize(filepath)
     else:
         filepath = obj.source_file.path
 
     # Generate ISCC-CODE
-    iscc_result = iscc.code_iscc(
+    iscc_result = idk.code_iscc(
         filepath,
-        title=obj.name,
-        extra=obj.description,
-        all_granular=config.ENABLE_GRANULAR_FEATURES,
     )
-    obj.iscc = iscc_result["iscc"]
-    obj.result = iscc_result
+    obj.iscc = iscc_result.iscc
+    obj.result = iscc_result.dict()
     obj.save()
     return iscc_result
 
