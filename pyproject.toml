@@ -10,7 +10,7 @@ keywords=["iscc", "microservice", "rest-api", "identifier", "media", "hash", "si
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-iscc-sdk = {extras = ["turbo"], version = "^0.1.0"}
+iscc-sdk = {extras = ["turbo"], version = "^0.2.0"}
 Django = "^4.0"
 django-ninja = "^0.16"
 django-admin-interface = "^0.18"
