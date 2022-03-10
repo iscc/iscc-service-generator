@@ -76,6 +76,11 @@ class GeneralSettings(BaseSettings):
         },
     ]
 
+    # Upload file pre-processing does not work with InMemoryUploadedFile!!!
+    FILE_UPLOAD_HANDLERS: List[str] = [
+        "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+    ]
+
 
 class I18NSettings(BaseSettings):
     # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -133,6 +138,7 @@ class QClusterSettings(BaseSettings):
 class ConstanceSettings(BaseSettings):
     CONSTANCE_BACKEND: str = "constance.backends.database.DatabaseBackend"
     CONSTANCE_CONFIG: Dict = {
+        "MAX_UPLOAD_SIZE": (10, "Maximum size for media file uploads in MB"),
         "PREVIEW_IMAGE_SIZE": (
             128,
             "Size of generated preview images in number of pixels (not implemented yet)",

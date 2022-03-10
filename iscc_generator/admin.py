@@ -6,8 +6,43 @@ from django.db import models
 from django_json_widget.widgets import JSONEditorWidget
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 from django_q.tasks import async_task
-from iscc_generator.models import IsccCode
+from iscc_generator.models import IsccCode, Media
 from iscc_generator.tasks import create_iscc_code
+
+
+@admin.register(Media)
+class MediaAdmin(admin.ModelAdmin):
+    list_display = (
+        "flake",
+        "name",
+        "source_file",
+        "type",
+        "filesize",
+        "created",
+        "original_flake",
+    )
+
+    fields = (
+        "flake",
+        "original_flake",
+        "name",
+        "source_file",
+        "type",
+        "filesize",
+        "metadata",
+    )
+    readonly_fields = ("flake", "original_flake", "name", "type", "filesize")
+    search_fields = ("source_file",)
+    list_filter = ("type",)
+
+    formfield_overrides = {
+        models.JSONField: {"widget": JSONEditorWidget(width="53em", height="28em")},
+    }
+
+    @admin.display(description="original")
+    def original_flake(self, obj):
+        if obj.original:
+            return obj.original.flake
 
 
 @admin.register(IsccCode)
@@ -62,7 +97,6 @@ class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
     }
 
     change_actions = ["action_create_iscc"]
-    actions = ["action_create_iscc"]
     actions = ["action_create_iscc"]
 
     def save_model(self, request, obj, form, change):

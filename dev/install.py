@@ -39,7 +39,6 @@ def create_demo_user(secure=True):
     print(f"Check interactive Rest API docs at http://localhost:8000/api/docs")
 
 
-
 def install():
     migrate()
     create_demo_user(secure=True)

@@ -64,7 +64,7 @@ FROM builder AS prod-build
 
 RUN python -m venv /venv && . /venv/bin/activate && poetry install --no-dev --no-root
 
-RUN /venv/bin/python -c "import iscc; iscc.bin.install()"
+RUN /venv/bin/python -c "import iscc_sdk; iscc_sdk.tools.install()"
 
 COPY . /app/
 
@@ -82,7 +82,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PATH="/venv/bin:$PATH"
 ENV VIRTUAL_ENV=/venv
 
-COPY --from=prod-build /root/.config/iscc /root/.config/iscc
+COPY --from=prod-build /root/.local/share/iscc-sdk /root/.local/share/iscc-sdk
 COPY --from=prod-build /app /app
 COPY --from=prod-build /venv /venv
 

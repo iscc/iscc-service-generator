@@ -25,7 +25,9 @@ django-object-actions = "^3.1"
 dj-database-url = "^0.5"
 pydantic = {extras = ["dotenv"], version = "1.9"}
 psycopg2 = "^2.9"
-requests = "^2.27.1"
+requests = "^2.27"
+pathvalidate = "^2.5"
+translitcodec = "^0.7"
 
 
 [tool.poetry.dev-dependencies]
@@ -34,6 +36,7 @@ poethepoet = "^0.12"
 mkdocs-material = "^8.1"
 pytest = "^6.2"
 pytest-django = "^4.5"
+iscc-samples = "^0.4.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -460,6 +460,14 @@ xxhash = "*"
 turbo = ["cython"]
 
 [[package]]
+name = "iscc-samples"
+version = "0.4.0"
+description = "A collection of media files as sample data for ISCC testing."
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[[package]]
 name = "iscc-schema"
 version = "0.3.4"
 description = "OpenAPI representation of the ISCC data model"
@@ -668,6 +676,17 @@ description = "Utility library for gitignore style pattern matching of file path
 category = "dev"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+
+[[package]]
+name = "pathvalidate"
+version = "2.5.0"
+description = "pathvalidate is a Python library to sanitize/validate a string such as filenames/file-paths/etc."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+test = ["allpairspy", "click", "faker", "pytest (>=6.0.1)", "pytest-discord (>=0.0.6)", "pytest-md-report (>=0.0.12)"]
 
 [[package]]
 name = "pillow"
@@ -944,6 +963,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "translitcodec"
+version = "0.7.0"
+description = "Unicode to 8-bit charset transliteration codec"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[[package]]
 name = "typing-extensions"
 version = "4.1.1"
 description = "Backported and Experimental Type Hints for Python 3.6+"
@@ -1060,7 +1087,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "81bb495bb596e88019dc9b75d5ff2433138732a97af1f3e6378eecf62bbce3b8"
+content-hash = "bd8d189c258aacfadd810d0e0801429bfbe6b1ac4760d66cd692f8d4a5df00d1"
 
 [metadata.files]
 ansicon = [
@@ -1349,6 +1376,9 @@ install-jdk = [
 iscc-core = [
     {file = "iscc-core-0.2.3.tar.gz", hash = "sha256:1d05e85f22923530582283ab2faaa8bfc7cc99a4bff05b7ec955be40a724ffe2"},
 ]
+iscc-samples = [
+    {file = "iscc-samples-0.4.0.tar.gz", hash = "sha256:98925bec8adcc8c843ddd42b32d0c7972ed1c2ff635cb44144fd7c08929d2a2f"},
+]
 iscc-schema = [
     {file = "iscc-schema-0.3.4.tar.gz", hash = "sha256:b8c97939533749434bea381b1c80145ab10a39e8078588518690fa206a7a2431"},
 ]
@@ -1456,6 +1486,10 @@ pastel = [
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
     {file = "pathspec-0.9.0.tar.gz", hash = "sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1"},
+]
+pathvalidate = [
+    {file = "pathvalidate-2.5.0-py3-none-any.whl", hash = "sha256:e5b2747ad557363e8f4124f0553d68878b12ecabd77bcca7e7312d5346d20262"},
+    {file = "pathvalidate-2.5.0.tar.gz", hash = "sha256:119ba36be7e9a405d704c7b7aea4b871c757c53c9adc0ed64f40be1ed8da2781"},
 ]
 pillow = [
     {file = "Pillow-9.0.1-1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:a5d24e1d674dd9d72c66ad3ea9131322819ff86250b30dc5821cbafcfa0b96b4"},
@@ -1715,6 +1749,9 @@ toml = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
+]
+translitcodec = [
+    {file = "translitcodec-0.7.0.tar.gz", hash = "sha256:3be7975c630ec0f1dd5b3712160c991a9776132985aed2588cba083ba00fa3c8"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.1.1-py3-none-any.whl", hash = "sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2"},

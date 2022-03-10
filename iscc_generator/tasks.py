@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
 import requests
 from blake3 import blake3
 from django.conf import settings
 import secrets
 import iscc_sdk as idk
+from django.core.files.storage import default_storage
+from iscc_schema import IsccMeta
+from iscc_generator.models import Media
+import shutil
 
 
 def create_iscc_code(pk: int):
@@ -34,7 +40,9 @@ def create_iscc_code(pk: int):
         remote_name = os.path.basename(url_obj.path or url_obj.netloc)
         obj.source_file_name = remote_name
         # media type
-        obj.source_file_mediatype = idk.mediatype_guess(open(filepath, 'wb').read(4096), remote_name)
+        obj.source_file_mediatype = idk.mediatype_guess(
+            open(filepath, "wb").read(4096), remote_name
+        )
         # file size
         obj.source_file_size = os.path.getsize(filepath)
     else:
@@ -65,3 +73,33 @@ def download_file(url: str) -> str:
     finalpath = os.path.join(settings.MEDIA_ROOT, hashname)
     os.rename(filepath, finalpath)
     return hashname
+
+
+def embed_metadata(media_id: int, meta: dict) -> str:
+    """Embed metadata into a copy of the media object"""
+
+    from django.core.files.storage import Storage
+
+    # Get database object
+    media_obj = Media.objects.get(media_id=media_id)
+    meta = IsccMeta.parse_obj(meta)
+
+    # Copy file to local storage
+    with TemporaryDirectory() as tempdir:
+        tmpfile_path = Path(tempdir) / media_obj.source_file.name
+        with tmpfile_path.open("wb") as tmpfile:
+            with media_obj.source_file.open("rb") as infile:
+                data = infile.read(1024 * 1024)
+                while data:
+                    tmpfile.write(data)
+                    data = infile.read(1024 * 1024)
+        # Embed metadata
+        idk.image_meta_embed(tmpfile_path, meta=meta)
+
+        # Create new media object with updated file
+        # new_media_obj = Media.objects.create()
+        # name = f"{new_media_obj.flake}/{media_obj.name}"
+
+        with tmpfile_path.open("rb") as tmpfile:
+            new_media_obj = Media.objects.create(source_file=tmpfile)
+    return new_media_obj.flake
