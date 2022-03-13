@@ -13,6 +13,10 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
 ENV POETRY_NO_INTERACTION=1 \
   POETRY_VIRTUALENVS_PATH=/venvs
 
+# Install taglib
+RUN apt-get update && \
+  apt-get install -y libtag1-dev
+
 # Install Poetry and create venv
 RUN pip install -U pip wheel setuptools && \
   pip install "poetry==$POETRY_VERSION"

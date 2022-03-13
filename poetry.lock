@@ -469,7 +469,7 @@ python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "iscc-schema"
-version = "0.3.4"
+version = "0.3.5"
 description = "OpenAPI representation of the ISCC data model"
 category = "main"
 optional = false
@@ -481,25 +481,23 @@ pydantic = ">=1.9,<2.0"
 
 [[package]]
 name = "iscc-sdk"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-cython = {version = "*", optional = true, markers = "extra == \"turbo\""}
+cython = ">=0.29.28,<0.30.0"
 install-jdk = ">=0.3,<0.4"
 iscc-core = ">=0.2.3,<0.3.0"
-iscc-schema = ">=0.3.4,<0.4.0"
+iscc-schema = ">=0.3.5,<0.4.0"
 jmespath = ">=0.10,<0.11"
 Pillow = ">=9.0,<10.0"
 platformdirs = ">=2.5,<3.0"
+pytaglib = ">=1.5.0,<2.0.0"
 python-magic = {version = ">=0.4,<0.5", markers = "sys_platform == \"linux\""}
 python-magic-bin = {version = ">=0.4,<0.5", markers = "sys_platform == \"win32\" or sys_platform == \"darwin\""}
-
-[package.extras]
-turbo = ["cython"]
 
 [[package]]
 name = "jcs"
@@ -809,6 +807,14 @@ python-versions = ">=3.6"
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
+name = "pytaglib"
+version = "1.5.0"
+description = "cross-platform, Python audio metadata (\"tagging\") library based on TagLib"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "pytest"
 version = "6.2.5"
 description = "pytest: simple powerful testing with Python"
@@ -1020,7 +1026,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "uvicorn"
-version = "0.17.5"
+version = "0.17.6"
 description = "The lightning-fast ASGI server."
 category = "main"
 optional = false
@@ -1032,7 +1038,7 @@ click = ">=7.0"
 h11 = ">=0.8"
 
 [package.extras]
-standard = ["websockets (>=10.0)", "httptools (>=0.2.0,<0.4.0)", "watchgod (>=0.6)", "python-dotenv (>=0.13)", "PyYAML (>=5.1)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "colorama (>=0.4)"]
+standard = ["websockets (>=10.0)", "httptools (>=0.4.0)", "watchgod (>=0.6)", "python-dotenv (>=0.13)", "PyYAML (>=5.1)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1)", "colorama (>=0.4)"]
 
 [[package]]
 name = "watchdog"
@@ -1087,7 +1093,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "eb47d81c025037f16f4c55cab462d0308a62847c77b8ffed33a34c012d3099af"
+content-hash = "a46ad53e6d2a3db0b53dea83c095d3d472cb775d207299915eeac84c0d189977"
 
 [metadata.files]
 ansicon = [
@@ -1380,10 +1386,10 @@ iscc-samples = [
     {file = "iscc-samples-0.4.0.tar.gz", hash = "sha256:98925bec8adcc8c843ddd42b32d0c7972ed1c2ff635cb44144fd7c08929d2a2f"},
 ]
 iscc-schema = [
-    {file = "iscc-schema-0.3.4.tar.gz", hash = "sha256:b8c97939533749434bea381b1c80145ab10a39e8078588518690fa206a7a2431"},
+    {file = "iscc-schema-0.3.5.tar.gz", hash = "sha256:0396af207981be355e16eef073c2fe17fdadfbf10fdfe7f9948a4b1a4fbcc0b8"},
 ]
 iscc-sdk = [
-    {file = "iscc-sdk-0.2.0.tar.gz", hash = "sha256:325ed541f1e39c2497623078df5ceabaa0c6af0c79609e27c5ed9054e1ef5ba6"},
+    {file = "iscc-sdk-0.3.0.tar.gz", hash = "sha256:8bc770c4a73eb53e5386569fb03dfed50dfad49949a5100334bf71a20ffd42c3"},
 ]
 jcs = [
     {file = "jcs-0.2.0-py3-none-any.whl", hash = "sha256:e5720fdc96ed811d9824faddd0d8a56e8676c8e1a43d150be43d36b0f805fdbf"},
@@ -1662,6 +1668,18 @@ pyparsing = [
     {file = "pyparsing-3.0.7-py3-none-any.whl", hash = "sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484"},
     {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
 ]
+pytaglib = [
+    {file = "pytaglib-1.5.0-cp310-cp310-win_amd64.whl", hash = "sha256:4bc09366c02e864e533956a04d95574ec7d2c0cf3c1ad8041e327f679769b5a7"},
+    {file = "pytaglib-1.5.0-cp38-cp38-win_amd64.whl", hash = "sha256:e13d8cf999fb6407fa56db6ef6a0a317484e49324706fcb813de7c82a637d9d5"},
+    {file = "pytaglib-1.5.0-cp39-cp39-win_amd64.whl", hash = "sha256:49487f390aa605cf5ebc72d5a74e53a843fb74a60946ffa7b1c970e2fa6b46d3"},
+    {file = "pytaglib-1.5.0-py3.10-linux-x86_64.egg", hash = "sha256:1b05826b7793d85adfbe1b5f6c6a97920a24f83b66b3d8bdc1b040b788d9d1ae"},
+    {file = "pytaglib-1.5.0-py3.10-win-amd64.egg", hash = "sha256:37fa1cd3f58c2814c5b7acad29a40f202ec6e20763c1c875c0512b1f27ec0b58"},
+    {file = "pytaglib-1.5.0-py3.8-linux-x86_64.egg", hash = "sha256:5d60f2777c6b1950db91b9ed750e4663593358abf016fbd8f99e222c1008082d"},
+    {file = "pytaglib-1.5.0-py3.8-win-amd64.egg", hash = "sha256:2357d14b6b5f6c3867bc169673587016ec9314287a943f1ad209d0fbe09db795"},
+    {file = "pytaglib-1.5.0-py3.9-linux-x86_64.egg", hash = "sha256:446fad443cc8a3515394aec5c623857ea7939a97016f9a567482f66832f8bd81"},
+    {file = "pytaglib-1.5.0-py3.9-win-amd64.egg", hash = "sha256:006a65af9a82fa143f8e2679335efed5f643c20b338245140dbb44094934f23c"},
+    {file = "pytaglib-1.5.0.tar.gz", hash = "sha256:8f7603dffdb1930428b305e79b8ca127e9cffc4ce4d2f7440a5f5226a82e6e5f"},
+]
 pytest = [
     {file = "pytest-6.2.5-py3-none-any.whl", hash = "sha256:7310f8d27bc79ced999e760ca304d69f6ba6c6649c0b60fb0e04a4a77cacc134"},
     {file = "pytest-6.2.5.tar.gz", hash = "sha256:131b36680866a76e6781d13f101efb86cf674ebb9762eb70d3082b6f29889e89"},
@@ -1774,8 +1792,8 @@ uvarint = [
     {file = "uvarint-1.2.0.tar.gz", hash = "sha256:7cc17481c9af8ebe3978f5357412b57ff93ce8b14712236338f782cc8ae9a989"},
 ]
 uvicorn = [
-    {file = "uvicorn-0.17.5-py3-none-any.whl", hash = "sha256:8adddf629b79857b48b999ae1b14d6c92c95d4d7840bd86461f09bee75f1653e"},
-    {file = "uvicorn-0.17.5.tar.gz", hash = "sha256:c04a9c069111489c324f427501b3840d306c6b91a77b00affc136a840a3f45f1"},
+    {file = "uvicorn-0.17.6-py3-none-any.whl", hash = "sha256:19e2a0e96c9ac5581c01eb1a79a7d2f72bb479691acd2b8921fce48ed5b961a6"},
+    {file = "uvicorn-0.17.6.tar.gz", hash = "sha256:5180f9d059611747d841a4a4c4ab675edf54c8489e97f96d0583ee90ac3bfc23"},
 ]
 watchdog = [
     {file = "watchdog-2.1.6-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9693f35162dc6208d10b10ddf0458cc09ad70c30ba689d9206e02cd836ce28a3"},
