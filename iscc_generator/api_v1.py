@@ -1,26 +1,34 @@
 # -*- coding: utf-8 -*-
+import base64
+import io
 import json
 from datetime import datetime
 from json import JSONDecodeError
 from os.path import join, basename
 from tempfile import TemporaryDirectory
 from typing import Optional
-
-import iscc_sdk
 from asgiref.sync import sync_to_async
 from django.shortcuts import redirect
 from django_q.tasks import async_task, result
 from django_q.models import Task, OrmQ
 from iscc_schema import IsccMeta
-from iscc_schema.generator import MediaID, MediaEmbeddedMetadata
+from iscc_schema.generator import (
+    MediaID,
+    MediaEmbeddedMetadata,
+    NftPostRequest,
+    NftPackage,
+    NftFrozen,
+)
 from ninja import Router, File, Form, ModelSchema, Schema, Field, UploadedFile
 from loguru import logger as log
 from iscc_generator.base import get_or_404
 from iscc_generator.models import IsccCode, Media
-from iscc_generator.storage import clean_filename, media_obj_from_path
+from iscc_generator.schema import AnyObject
+from iscc_generator.storage import media_obj_from_path
 from iscc_generator.tasks import create_iscc_code
 from constance import config
 import iscc_sdk as idk
+import iscc_core as ic
 
 
 router = Router()
@@ -245,6 +253,43 @@ async def media_metadata_get(request, media_id: str):
     """Reads and returns embedded metadata from the media asset."""
     media_obj: Media = await get_or_404(Media, media_id)
     return media_obj.metadata
+
+
+####################################################################################################
+# /nft endpoints                                                                                   #
+####################################################################################################
+
+
+@router.post(
+    "/nft",
+    tags=["nft"],
+    operation_id="post-nft",
+    summary="create nft",
+    response={201: NftPackage},
+)
+async def nft_post(request, data: NftPostRequest):
+    pass
+
+
+@router.post(
+    "/nft/freeze",
+    tags=["nft"],
+    operation_id="post-nft-freeze",
+    summary="freeze nft",
+    response={201: NftFrozen},
+    exclude_none=True,
+)
+async def nft_post(request, anyobject: AnyObject):
+    obj = anyobject.dict()
+    canonical = ic.json_canonical(obj)
+    cid = ic.cidv1_hex(io.BytesIO(canonical))
+    token_id_num = ic.cidv1_to_token_id(cid)
+    return NftFrozen(
+        token_id_hex=cid.lstrip("f01551220"),
+        token_id_num=str(token_id_num),
+        metadata_ipfs_uri=f"ipfs://{cid}",
+        metadata_ipfs_payload=base64.b64encode(canonical).decode("ascii"),
+    )
 
 
 ####################################################################################################
