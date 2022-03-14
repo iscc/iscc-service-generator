@@ -11,8 +11,8 @@ import iscc_sdk as idk
 
 class IsccCode(GeneratorBaseModel):
     class Meta:
-        verbose_name = "ISCC Code"
-        verbose_name_plural = "ISCC Codes"
+        verbose_name = "ISCC-CODE"
+        verbose_name_plural = "ISCC-CODES"
 
     iscc = models.CharField(
         verbose_name="ISCC",
@@ -23,40 +23,13 @@ class IsccCode(GeneratorBaseModel):
         help_text="International Standard Content Code",
     )
 
-    source_file = models.FileField(
-        verbose_name=_("source file"),
-        blank=True,
-        default="",
-        upload_to=get_storage_path,
-        help_text=_("The file used for generating the ISCC"),
-    )
-
-    source_file_name = models.CharField(
-        verbose_name=_("filename"),
-        blank=True,
-        max_length=255,
-        default="",
-        editable=False,
-        help_text=_("Original filename from upload (autoset / untrusted)"),
-    )
-
-    source_file_mediatype = models.CharField(
-        verbose_name=_("mediatype"),
-        blank=True,
-        max_length=255,
-        default="",
-        editable=False,
-        help_text=_(
-            "Original IANA Media Type (MIME type) from upload (autoset / untrusted)"
-        ),
-    )
-
-    source_file_size = models.PositiveBigIntegerField(
-        verbose_name=_("filesize"),
+    source_file = models.ForeignKey(
+        "Media",
+        verbose_name=_("souce_file"),
         null=True,
-        editable=False,
-        default=0,
-        help_text=_("The filesize of the media asset"),
+        default=None,
+        on_delete=models.CASCADE,
+        help_text=_("File used for ISCC-CODE creation"),
     )
 
     source_url = models.URLField(
@@ -64,7 +37,7 @@ class IsccCode(GeneratorBaseModel):
         blank=True,
         default="",
         max_length=4096,
-        help_text=_("URL of file used for generating the ISCC"),
+        help_text=_("URL of file used for generating the ISCC-CODE"),
     )
 
     name = models.CharField(
@@ -88,20 +61,15 @@ class IsccCode(GeneratorBaseModel):
         ),
     )
 
-    metadata = models.JSONField(
-        verbose_name=_("metadata"),
-        null=True,
+    meta = models.TextField(
+        verbose_name=_("meta"),
+        default="",
         blank=True,
-        default=None,
-        help_text=_("Metadata for Meta-Code"),
-    )
-
-    embed = models.JSONField(
-        verbose_name=_("embed"),
-        null=True,
-        blank=True,
-        default=None,
-        help_text=_("Fields for embedding"),
+        max_length=16384,
+        help_text=_(
+            "Subject, industry, or use-case specific metadata, encoded as JSON string or Data-URL"
+            " (used as sole input for Meta-Code and `metahash` generation if supplied)."
+        ),
     )
 
     result = models.JSONField(
@@ -114,28 +82,23 @@ class IsccCode(GeneratorBaseModel):
 
     def __str__(self):
         if self.iscc:
-            return f"{self.source_file_name} - ISCC:{self.iscc}"
-        return self.source_file_name
+            return f"ISCC:{self.iscc}"
+        return f"ISCC:{self.flake}"
 
-    @admin.display(ordering="source_file_size", description="filesize")
+    @admin.display(ordering="source_file__size", description="filesize")
     def source_file_size_human(self):
-        if self.source_file_size:
-            return humanize.naturalsize(self.source_file_size, binary=True)
+        if self.source_file:
+            return humanize.naturalsize(self.source_file.size, binary=True)
 
     @admin.display(ordering="iscc", description="iscc")
     def iscc_monospaced(self):
-        return format_html(f'<span style="font-family: monospace">{self.iscc}</span>')
+        return format_html(
+            f'<span style="font-family: monospace; font-weight: bold;">{self.iscc}</span>'
+        )
 
-    def save(self, *args, **kwargs):
-        """Intercept new file uploads to set file properties and trigger ISCC processing"""
-        if self.source_file:
-            new_upload = isinstance(self.source_file.file, TemporaryUploadedFile)
-            if new_upload:
-                self.source_file.flush()
-                self.source_file_name = self.source_file.file.name
-                self.source_file_mediatype = self.source_file.file.content_type
-                self.source_file_size = self.source_file.size
-        super().save(*args, **kwargs)
+    @admin.display(ordering="id", description="id")
+    def flake_monospaced(self):
+        return format_html(f'<span style="font-family: monospace">{self.flake}</span>')
 
 
 class Media(GeneratorBaseModel):
@@ -210,8 +173,13 @@ class Media(GeneratorBaseModel):
             self.name = self.source_file.file.name
             self.type = self.source_file.file.content_type
             self.size = self.source_file.size
-            self.metadata = idk.image_meta_extract(
-                self.source_file.file.temporary_file_path()
-            )
+            fp = self.source_file.file.temporary_file_path()
+            mt, mode_ = idk.mediatype_and_mode(fp)
+            if mode_ == "image":
+                meta = idk.image_meta_extract(fp)
+                self.metadata = meta
+            elif mode_ == "audio":
+                meta = idk.audio_meta_extract(fp)
+                self.metadata = meta
 
         super().save(*args, **kwargs)

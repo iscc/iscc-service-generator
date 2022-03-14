@@ -8,16 +8,20 @@ from os.path import join, basename
 from tempfile import TemporaryDirectory
 from typing import Optional
 from asgiref.sync import sync_to_async
+from data_url import DataURL
 from django.shortcuts import redirect
 from django_q.tasks import async_task, result
 from django_q.models import Task, OrmQ
-from iscc_schema import IsccMeta
+
+# from iscc_schema import IsccMeta
+from iscc_sdk import IsccMeta
 from iscc_schema.generator import (
     MediaID,
     MediaEmbeddedMetadata,
     NftPostRequest,
     NftPackage,
     NftFrozen,
+    IsccMetadata,
 )
 from ninja import Router, File, Form, ModelSchema, Schema, Field, UploadedFile
 from loguru import logger as log
@@ -25,10 +29,11 @@ from iscc_generator.base import get_or_404
 from iscc_generator.models import IsccCode, Media
 from iscc_generator.schema import AnyObject
 from iscc_generator.storage import media_obj_from_path
-from iscc_generator.tasks import create_iscc_code
+from iscc_generator.tasks import iscc_generator_task
 from constance import config
 import iscc_sdk as idk
 import iscc_core as ic
+from pydantic import Json
 
 
 router = Router()
@@ -39,22 +44,32 @@ class Message(Schema):
 
 
 class IsccRequest(ModelSchema):
-    class Config:
-        model = IsccCode
-        model_fields = ["source_url", "name", "description", "metadata"]
 
-
-class IsccResponse(ModelSchema):
-
-    filename: Optional[str] = Field(
-        None,
-        alias="source_file_name",
-        description="Filename of the source used to create the ISCC",
-    )
+    # meta: Optional[Json] = Field(
+    #     None,
+    #     description="Json string of extended metadata.",
+    # )
 
     class Config:
         model = IsccCode
-        model_fields = ["iscc", "name", "description", "metadata"]
+        model_fields = ["source_url", "name", "description", "meta"]
+
+
+class IsccResponse(IsccMeta):
+    mode: str
+
+
+# class IsccResponse(ModelSchema):
+#
+#     filename: Optional[str] = Field(
+#         None,
+#         alias="source_file_name",
+#         description="Filename of the source used to create the ISCC",
+#     )
+#
+#     class Config:
+#         model = IsccCode
+#         model_fields = ["iscc", "name", "description", "meta"]
 
 
 class TaskResponse(Schema):
@@ -69,13 +84,14 @@ class TaskResponse(Schema):
 
 @router.post(
     "/iscc_code",
-    response={200: IsccResponse, 202: TaskResponse, 400: Message, 503: Message},
-    exclude_defaults=True,
-    summary="Create ISCC-CODE",
-    tags=["iscc_code"],
-    operation_id="create-iscc-code",
+    response={201: IsccMeta, 202: TaskResponse, 400: Message, 500: Message},
+    summary="create iscc",
+    tags=["iscc"],
+    operation_id="iscc-code-create",
+    exclude_none=True,
+    by_alias=True,
 )
-async def generate_iscc_code(
+async def iscc_code_create(
     request,
     source_file: Optional[UploadedFile] = File(
         None, description="The file used for generating the ISCC"
@@ -85,20 +101,50 @@ async def generate_iscc_code(
     """
     ## Generate an ISCC for a media asset.
 
-    Provide at least a `source_file` or optionally a `source_url`. If processing finishes in time
-    you will receive an `IsccResponse`. If processing exeeds the time limit you will receive
-    a `TaskResponse` to poll for the result at /task/{task_id}.
+    Provide at least a `source_file` or optionally a `source_url`. If processing finishes fast
+    you will receive an `IsccResponse`. If processing exeeds the configured time limit you will
+    receive a `TaskResponse` to poll for the result at /task/{task_id}.
     """
 
+    # validate the request
     if not source_file and not meta.source_url:
-        return 400, Message(detail="either source_file or source_url is required")
+        return 400, Message(detail="Either source_file or source_url is required")
+    if meta.meta:
+        if meta.meta.startswith("data:"):
+            try:
+                DataURL.from_url(meta.meta)
+            except Exception:
+                return 500, Message(detail="Invalid Data-URL in field meta")
+        else:
+            try:
+                json.loads(meta.meta)
+            except Exception:
+                return 500, Message(detail="Invalid JSON-string in field meta")
 
-    ico = await async_create_iscc_code(source_file, meta)
-    task_id = await async_create_task(ico.pk)
+    media_obj = None
+    # Create Media object if source_file provided (source_url will be handled by worker task).
+    if source_file:
+        try:
+            media_obj = await sync_to_async(Media.objects.create)(
+                source_file=source_file
+            )
+        except Exception as e:
+            return 500, Message(detail=str(e))
+
+    # create IsccCode object
+    iscc_obj = await sync_to_async(IsccCode.objects.create)(
+        source_file=media_obj, **meta.dict()
+    )
+
+    # start processing
+    task_id = await sync_to_async(async_task)(iscc_generator_task, iscc_obj.pk)
+
+    # wait for result with timeout
     task_result = await async_wait_for_task(task_id)
     if task_result:
-        obj = await async_get_iscc_code(pk=ico.pk)
-        return 200, obj
+        iscc_obj = await sync_to_async(IsccCode.objects.get)(pk=iscc_obj.pk)
+        return 201, iscc_obj.result
+    # return task-id instead
     else:
         task = await async_find_task(task_id)
         if not task:
@@ -108,37 +154,43 @@ async def generate_iscc_code(
 
 @router.get(
     "/iscc_code/{iscc}",
-    response={200: IsccResponse, 404: Message},
+    response={200: IsccMeta, 404: Message},
     exclude_defaults=False,
-    exclude_none=True,
     exclude_unset=True,
-    summary="Get ISCC-CODE",
-    tags=["iscc_code"],
-    operation_id="get-iscc-code",
+    summary="get iscc",
+    tags=["iscc"],
+    operation_id="iscc-code-get",
 )
-async def get_iscc_code(request, iscc: str):
+async def iscc_code_get(request, iscc: str):
     """
-    Returns metadata for previously generated ISCC-CODE
+    Get metadata for previously generated ISCC-CODE
     """
-    iscc_code_obj = await async_get_iscc_code(iscc=iscc)
-    if iscc_code_obj:
-        return iscc_code_obj
-    else:
-        return 404, Message(detail="ISCC not found")
+    try:
+        iscc = ic.iscc_normalize(iscc)
+        objs = await sync_to_async(list)(IsccCode.objects.filter(iscc=iscc))
+        return objs[0].result
+    except Exception:
+        return 404, Message(detail="ISCC-CODE not found")
 
 
-@router.get(
-    "/task/{task_id}",
-    response={200: TaskResponse, 404: Message},
-    exclude_none=True,
-    tags=["task"],
-    operation_id="get-task",
+@router.delete(
+    "/iscc_code/{iscc}",
+    response={200: Message, 404: Message},
+    summary="delete iscc",
+    tags=["iscc"],
+    operation_id="iscc-code-delete",
 )
-async def get_task(request, task_id: str):
-    task = await async_find_task(task_id)
-    if not task:
-        return 404, Message(detail="Task not found")
-    return 200, task
+async def iscc_code_delete(request, iscc: str):
+    """
+    Delete ISCC-CODE entry from database.
+    """
+    try:
+        iscc = ic.iscc_normalize(iscc)
+        iscc_code_obj: IsccCode = await sync_to_async(IsccCode.objects.get)(iscc=iscc)
+        await sync_to_async(iscc_code_obj.delete)()
+        return 200, Message(detail="ISCC-CODE deleted")
+    except Exception:
+        return 404, Message(detail="ISCC-CODE not found")
 
 
 ####################################################################################################
@@ -159,15 +211,10 @@ async def media_post(request, source_file: UploadedFile = File(None)):
         return 400, Message(detail="No file sent")
 
     try:
-        media_obj = await async_media_post(source_file)
+        media_obj = await sync_to_async(Media.objects.create)(source_file=source_file)
     except Exception as e:
         return 500, Message(detail=e.__class__.__name__)
     return 201, MediaID(media_id=media_obj.flake)
-
-
-@sync_to_async
-def async_media_post(source_file):
-    return Media.objects.create(source_file=source_file)
 
 
 @router.get(
@@ -191,15 +238,9 @@ async def media_get(request, media_id):
 async def media_delete(request, media_id: str):
     """Delete media asset"""
     media_obj: Media = await get_or_404(Media, media_id)
-    await async_media_delete(media_obj)
+    await sync_to_async(media_obj.delete)()
 
     return 200, Message(detail="Media asset deleted")
-
-
-@sync_to_async
-def async_media_delete(media_obj):
-    media_obj.source_file.delete()
-    media_obj.delete()
 
 
 @router.post(
@@ -256,6 +297,25 @@ async def media_metadata_get(request, media_id: str):
 
 
 ####################################################################################################
+# /task endpoints                                                                                  #
+####################################################################################################
+
+
+@router.get(
+    "/task/{task_id}",
+    response={200: TaskResponse, 404: Message},
+    exclude_none=True,
+    tags=["task"],
+    operation_id="get-task",
+)
+async def get_task(request, task_id: str):
+    task = await async_find_task(task_id)
+    if not task:
+        return 404, Message(detail="Task not found")
+    return 200, task
+
+
+####################################################################################################
 # /nft endpoints                                                                                   #
 ####################################################################################################
 
@@ -276,12 +336,15 @@ async def nft_post(request, data: NftPostRequest):
     tags=["nft"],
     operation_id="post-nft-freeze",
     summary="freeze nft",
-    response={201: NftFrozen},
+    response={200: NftFrozen, 400: Message},
     exclude_none=True,
 )
-async def nft_post(request, anyobject: AnyObject):
-    obj = anyobject.dict()
-    canonical = ic.json_canonical(obj)
+async def nft_freeze_post(request, anyobject: AnyObject):
+    data = anyobject.dict().get("__root__")
+    if not data:
+        return 400, Message(detail="No JSON data provided")
+
+    canonical = ic.json_canonical(data)
     cid = ic.cidv1_hex(io.BytesIO(canonical))
     token_id_num = ic.cidv1_to_token_id(cid)
     return NftFrozen(
@@ -298,24 +361,8 @@ async def nft_post(request, anyobject: AnyObject):
 
 
 @sync_to_async
-def async_create_iscc_code(source_file, meta: IsccRequest):
-
-    # Decode json metadata
-    try:
-        meta.metadata = json.loads(meta.metadata)
-    except JSONDecodeError:
-        log.warning(f"failed to decode metadata {meta.metadata}")
-        metadata = None
-    #
-    if source_file:
-        return IsccCode.objects.create(source_file=source_file, **meta.dict())
-    else:
-        return IsccCode.objects.create(**meta.dict())
-
-
-@sync_to_async
-def async_create_task(iscc_pk) -> str:
-    return async_task(create_iscc_code, iscc_pk)
+def async_create_generator_task(iscc_pk) -> str:
+    return async_task(iscc_generator_task, iscc_pk)
 
 
 @sync_to_async

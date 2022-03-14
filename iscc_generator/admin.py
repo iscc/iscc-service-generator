@@ -1,5 +1,6 @@
 from typing import Optional
 
+import humanize
 from django.contrib import admin
 from django import forms
 from django.db import models
@@ -7,7 +8,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 from django_q.tasks import async_task
 from iscc_generator.models import IsccCode, Media
-from iscc_generator.tasks import create_iscc_code
+from iscc_generator.tasks import iscc_generator_task
 
 
 @admin.register(Media)
@@ -51,44 +52,34 @@ class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
     actions_on_top = False
     actions_on_bottom = True
 
-    search_fields = [
-        "iscc",
-        "source_file_name",
-        "name",
-    ]
-
-    list_display = [
-        "id",
+    list_display = (
+        "flake_monospaced",
         "iscc_monospaced",
-        "source_file_name",
-        "name",
-        "source_file_mediatype",
-        "source_file_size_human",
+        "filename",
+        "mediatype",
+        "filesize",
         "created",
-    ]
-    list_filter = [
-        "source_file_mediatype",
-    ]
+    )
+    search_fields = (
+        "iscc",
+        "source_file__name",
+        "name",
+    )
 
-    fields = [
+    list_filter = ("source_file__type",)
+    readonly_fields = (
+        "iscc",
+        "source_file",
+    )
+    fields = (
         "iscc",
         "source_file",
         "source_url",
-        "source_file_mediatype",
-        "source_file_size",
         "name",
         "description",
-        "metadata",
+        "meta",
         "result",
-    ]
-
-    readonly_fields = [
-        "iscc",
-        "source_file_mediatype",
-        "source_file_size",
-        "source_file_name",
-    ]
-
+    )
     formfield_overrides = {
         models.URLField: {"widget": forms.URLInput(attrs={"size": 98})},
         models.CharField: {"widget": forms.TextInput(attrs={"size": 98})},
@@ -96,23 +87,33 @@ class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
         models.JSONField: {"widget": JSONEditorWidget(width="53em", height="28em")},
     }
 
+    @admin.display(ordering="source_file__name")
+    def filename(self, obj):
+        if obj.source_file:
+            return obj.source_file.name
+
+    @admin.display(ordering="source_file__type")
+    def mediatype(self, obj):
+        if obj.source_file:
+            return obj.source_file.type
+
+    @admin.display(ordering="source_file__size")
+    def filesize(self, obj):
+        if obj.source_file:
+            return humanize.naturalsize(obj.source_file.size, binary=True)
+
     change_actions = ["action_create_iscc"]
     actions = ["action_create_iscc"]
 
     def save_model(self, request, obj, form, change):
         """Create ISCC on Save"""
         super().save_model(request, obj, form, change)
-        create_iscc_code(obj.pk)
-
-    def get_readonly_fields(self, request, obj: Optional[IsccCode] = None):
-        if obj and obj.source_file:
-            return super().get_readonly_fields(request, obj) + ["source_file"]
-        return super().get_readonly_fields(request, obj)
+        iscc_generator_task(obj.pk)
 
     @takes_instance_or_queryset
     def action_create_iscc(self, request, queryset):
         for obj in queryset:
-            async_task(create_iscc_code, obj.pk)
+            async_task(iscc_generator_task, obj.pk)
 
     action_create_iscc.label = "Generate ISCC"  # optional
     action_create_iscc.short_description = "Generate ISCC Codes for selected entries"

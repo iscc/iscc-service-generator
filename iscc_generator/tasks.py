@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
+import json
+
+from data_url import DataURL
+from loguru import logger as log
 import os
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from urllib.parse import urlparse
-import requests
-from blake3 import blake3
-from django.conf import settings
-import secrets
 import iscc_sdk as idk
-from django.core.files.storage import default_storage
+import iscc_core as ic
 from iscc_schema import IsccMeta
-from iscc_generator.models import Media
-import shutil
+from iscc_generator.download import download_media, download_url
+from iscc_generator.storage import media_obj_from_path
 
 
-def create_iscc_code(pk: int):
+def iscc_generator_task(pk: int):
     """
     Create an ISCC Code for an IsccCode database object.
+
+    - retrieves asset to local temp storage
+    - embeds metadata
+    - stores new Media object
+    - generates ISCC
+    - stores result in IsccCode
+    - removes temp file
 
     :param int pk: Primary key of the IsccCode entry
     :return: The result of the ISCC processor
@@ -24,82 +28,89 @@ def create_iscc_code(pk: int):
     """
     from iscc_generator.models import IsccCode
 
-    obj = IsccCode.objects.get(pk=pk)
+    iscc_obj = IsccCode.objects.get(pk=pk)
 
-    # Download file if required
-    if not obj.source_file and not obj.source_url:
-        return {"error", "either source_file or source_url required"}
-    elif obj.source_url and not obj.source_file:
-        hashname = download_file(obj.source_url)
-        filepath = os.path.join(settings.MEDIA_ROOT, hashname)
-        # Set properties from downladed file
-        # internal local file name
-        obj.source_file.name = hashname
-        # source filename
-        url_obj = urlparse(obj.source_url)
-        remote_name = os.path.basename(url_obj.path or url_obj.netloc)
-        obj.source_file_name = remote_name
-        # media type
-        obj.source_file_mediatype = idk.mediatype_guess(
-            open(filepath, "wb").read(4096), remote_name
+    # ensure meta is a data url
+    if iscc_obj.meta and not iscc_obj.meta.startswith("data:"):
+        data = json.loads(iscc_obj.meta)
+        serialized = ic.json_canonical(data)
+        durl_obj = DataURL.from_data(
+            "application/json", base64_encode=True, data=serialized
         )
-        # file size
-        obj.source_file_size = os.path.getsize(filepath)
+        meta_durl = durl_obj.url
     else:
-        filepath = obj.source_file.path
+        meta_durl = iscc_obj.meta
 
-    # Generate ISCC-CODE
-    iscc_result = idk.code_iscc(
-        filepath,
-    )
-    obj.iscc = iscc_result.iscc
-    obj.result = iscc_result.dict()
-    obj.save()
-    return iscc_result
+    meta_obj = IsccMeta()
+    meta_obj.name = iscc_obj.name or None
+    meta_obj.description = iscc_obj.description or None
+    meta_obj.meta = meta_durl or None
+
+    media_obj = iscc_obj.source_file
+
+    # retrieve file
+    if media_obj:
+        temp_fp = download_media(media_obj)
+    elif iscc_obj.source_url:
+        temp_fp = download_url(iscc_obj.source_url)
+    else:
+        raise ValueError("No source_file and not source_url.")
+
+    # embed metadata
+    if meta_obj.dict(exclude_none=True, exclude_unset=True, exclude_defaults=True):
+        mt, mode_ = idk.mediatype_and_mode(temp_fp)
+        if mode_ == "image":
+            idk.image_meta_embed(temp_fp, meta_obj)
+        elif mode_ == "audio":
+            idk.audio_meta_embed(temp_fp, meta_obj)
+        else:
+            return dict(details=f"Unsupported mode {mode_} for mediatype {mt}")
+
+    # remote store and set new media object
+    new_media_obj = media_obj_from_path(temp_fp, original=media_obj)
+    iscc_obj.source_file = new_media_obj
+    iscc_obj.save()
+
+    # generate iscc code
+    iscc_result = idk.code_iscc(temp_fp)
+    iscc_obj.iscc = iscc_result.iscc
+    iscc_obj.result = iscc_result.dict(exclude_defaults=False)
+    iscc_obj.save()
+
+    # cleanup
+    try:
+        os.remove(temp_fp)
+    except OSError:
+        log.warning(f"could not remove temp file {temp_fp}")
+
+    return dict(result=iscc_result.iscc)
 
 
-def download_file(url: str) -> str:
-    """Download file and return local path"""
-    filename = secrets.token_hex(64)
-    filepath = os.path.join(settings.MEDIA_ROOT, filename)
-    with open(filepath, "wb") as outfile:
-        r = requests.get(url, stream=True)
-        chunk_size = 1024 * 1024
-        hasher = blake3()
-        for chunk in r.iter_content(chunk_size):
-            hasher.update(chunk)
-            outfile.write(chunk)
-    hashname = hasher.hexdigest()
-    finalpath = os.path.join(settings.MEDIA_ROOT, hashname)
-    os.rename(filepath, finalpath)
-    return hashname
-
-
-def embed_metadata(media_id: int, meta: dict) -> str:
-    """Embed metadata into a copy of the media object"""
-
-    from django.core.files.storage import Storage
-
-    # Get database object
-    media_obj = Media.objects.get(media_id=media_id)
-    meta = IsccMeta.parse_obj(meta)
-
-    # Copy file to local storage
-    with TemporaryDirectory() as tempdir:
-        tmpfile_path = Path(tempdir) / media_obj.source_file.name
-        with tmpfile_path.open("wb") as tmpfile:
-            with media_obj.source_file.open("rb") as infile:
-                data = infile.read(1024 * 1024)
-                while data:
-                    tmpfile.write(data)
-                    data = infile.read(1024 * 1024)
-        # Embed metadata
-        idk.image_meta_embed(tmpfile_path, meta=meta)
-
-        # Create new media object with updated file
-        # new_media_obj = Media.objects.create()
-        # name = f"{new_media_obj.flake}/{media_obj.name}"
-
-        with tmpfile_path.open("rb") as tmpfile:
-            new_media_obj = Media.objects.create(source_file=tmpfile)
-    return new_media_obj.flake
+# def embed_metadata(media_id: int, meta: dict) -> str:
+#     """Embed metadata into a copy of the media object"""
+#
+#     from django.core.files.storage import Storage
+#
+#     # Get database object
+#     media_obj = Media.objects.get(media_id=media_id)
+#     meta = IsccMeta.parse_obj(meta)
+#
+#     # Copy file to local storage
+#     with TemporaryDirectory() as tempdir:
+#         tmpfile_path = Path(tempdir) / media_obj.source_file.name
+#         with tmpfile_path.open("wb") as tmpfile:
+#             with media_obj.source_file.open("rb") as infile:
+#                 data = infile.read(1024 * 1024)
+#                 while data:
+#                     tmpfile.write(data)
+#                     data = infile.read(1024 * 1024)
+#         # Embed metadata
+#         idk.image_meta_embed(tmpfile_path, meta=meta)
+#
+#         # Create new media object with updated file
+#         # new_media_obj = Media.objects.create()
+#         # name = f"{new_media_obj.flake}/{media_obj.name}"
+#
+#         with tmpfile_path.open("rb") as tmpfile:
+#             new_media_obj = Media.objects.create(source_file=tmpfile)
+#     return new_media_obj.flake
