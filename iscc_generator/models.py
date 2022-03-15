@@ -82,8 +82,8 @@ class IsccCode(GeneratorBaseModel):
 
     def __str__(self):
         if self.iscc:
-            return f"ISCC:{self.iscc}"
-        return f"ISCC:{self.flake}"
+            return self.iscc
+        return self.flake
 
     @admin.display(ordering="source_file__size", description="filesize")
     def source_file_size_human(self):
@@ -119,6 +119,15 @@ class Media(GeneratorBaseModel):
         upload_to=get_storage_path,
         help_text=_("The actual media asset"),
     )
+
+    cid = models.CharField(
+        verbose_name=_("cid"),
+        max_length=128,
+        blank=True,
+        default="",
+        help_text=_("IPFS CIDv1"),
+    )
+
     type = models.CharField(
         verbose_name=_("mediatype"),
         blank=True,
@@ -174,6 +183,7 @@ class Media(GeneratorBaseModel):
             self.type = self.source_file.file.content_type
             self.size = self.source_file.size
             fp = self.source_file.file.temporary_file_path()
+            self.cid = idk.ipfs_cidv1(fp)
             mt, mode_ = idk.mediatype_and_mode(fp)
             if mode_ == "image":
                 meta = idk.image_meta_extract(fp)
@@ -274,3 +284,9 @@ class Nft(GeneratorBaseModel):
         default=None,
         help_text=_("The result returned by the NFT generator."),
     )
+
+    def __str__(self):
+        return f"NFT-{self.flake}"
+
+    def patch(self) -> dict:
+        """Return data used for patching ISCC Metadata"""

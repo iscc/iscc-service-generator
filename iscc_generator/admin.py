@@ -1,5 +1,3 @@
-from typing import Optional
-
 import humanize
 from django.contrib import admin
 from django import forms
@@ -50,11 +48,12 @@ class MediaAdmin(admin.ModelAdmin):
         "original_flake",
         "name",
         "source_file",
+        "cid",
         "type",
         "filesize",
         "metadata",
     )
-    readonly_fields = ("flake", "original_flake", "name", "type", "filesize")
+    readonly_fields = ("flake", "original_flake", "name", "cid", "type", "filesize")
     search_fields = ("source_file",)
     list_filter = ("type",)
 

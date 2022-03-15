@@ -3,7 +3,6 @@ import base64
 import io
 import json
 from datetime import datetime
-from json import JSONDecodeError
 from os.path import join, basename
 from tempfile import TemporaryDirectory
 from typing import Optional
@@ -12,28 +11,22 @@ from data_url import DataURL
 from django.shortcuts import redirect
 from django_q.tasks import async_task, result
 from django_q.models import Task, OrmQ
-
-# from iscc_schema import IsccMeta
 from iscc_sdk import IsccMeta
 from iscc_schema.generator import (
     MediaID,
     MediaEmbeddedMetadata,
-    NftPostRequest,
     NftPackage,
     NftFrozen,
-    IsccMetadata,
 )
-from ninja import Router, File, Form, ModelSchema, Schema, Field, UploadedFile
-from loguru import logger as log
+from ninja import Router, File, Form, ModelSchema, Schema, UploadedFile
 from iscc_generator.base import get_or_404
-from iscc_generator.models import IsccCode, Media
-from iscc_generator.schema import AnyObject
+from iscc_generator.models import IsccCode, Media, Nft
+from iscc_generator.schema import AnyObject, NftRequest
 from iscc_generator.storage import media_obj_from_path
-from iscc_generator.tasks import iscc_generator_task
+from iscc_generator.tasks import iscc_generator_task, nft_generator_task
 from constance import config
 import iscc_sdk as idk
 import iscc_core as ic
-from pydantic import Json
 
 
 router = Router()
@@ -44,12 +37,6 @@ class Message(Schema):
 
 
 class IsccRequest(ModelSchema):
-
-    # meta: Optional[Json] = Field(
-    #     None,
-    #     description="Json string of extended metadata.",
-    # )
-
     class Config:
         model = IsccCode
         model_fields = ["source_url", "name", "description", "meta"]
@@ -57,19 +44,6 @@ class IsccRequest(ModelSchema):
 
 class IsccResponse(IsccMeta):
     mode: str
-
-
-# class IsccResponse(ModelSchema):
-#
-#     filename: Optional[str] = Field(
-#         None,
-#         alias="source_file_name",
-#         description="Filename of the source used to create the ISCC",
-#     )
-#
-#     class Config:
-#         model = IsccCode
-#         model_fields = ["iscc", "name", "description", "meta"]
 
 
 class TaskResponse(Schema):
@@ -297,6 +271,85 @@ async def media_metadata_get(request, media_id: str):
 
 
 ####################################################################################################
+# /nft endpoints                                                                                   #
+####################################################################################################
+
+
+@router.post(
+    "/nft",
+    tags=["nft"],
+    operation_id="post-nft",
+    summary="create nft",
+    response={201: NftPackage, 400: Message, 404: Message, 500: Message},
+    exclude_unset=True,
+)
+async def nft_post(request, item: NftRequest):
+    """Creates an NFT package"""
+    if not item.iscc_code:
+        return 400, Message(detail="missing required field 'iscc_code'")
+    try:
+        ic.iscc_validate(item.iscc_code, strict=True)
+    except Exception as e:
+        return 400, Message(detail=f"{item.iscc_code} is an invalid ISCC-CODE - {e}")
+    try:
+        iscc_obj = await sync_to_async(IsccCode.objects.get)(iscc=item.iscc_code)
+    except IsccCode.DoesNotExist:
+        return 404, Message(detail=f"{item.iscc_code} does not exist")
+    item = item.dict()
+    item["iscc_code"] = iscc_obj
+    nft_obj = await sync_to_async(Nft.objects.create)(**item)
+
+    # start processing
+    task_id = await sync_to_async(async_task)(nft_generator_task, nft_obj.pk)
+
+    # wait for result with timeout
+    task_result = await async_wait_for_task(task_id)
+    if task_result:
+        await sync_to_async(nft_obj.refresh_from_db)()
+        return 201, nft_obj.result
+    # return task-id instead
+    else:
+        task = await async_find_task(task_id)
+        if not task:
+            return 503, Message(detail="Task not found")
+        return 202, task
+
+
+@router.post(
+    "/nft/freeze",
+    tags=["nft"],
+    operation_id="post-nft-freeze",
+    summary="freeze nft",
+    response={200: NftFrozen, 400: Message},
+    exclude_none=True,
+)
+async def nft_freeze_post(request, anyobject: AnyObject):
+    """
+    Creates a Token-ID and IPFS CIDv1 for NFT metadata.
+
+    Post the contents of the `nft_metadata` field from the `/nft` entpoint to this endpoint if you
+    want to mint your NFT with a Token-ID that is derived from the IPFS CIDv1 of the nft metadata.
+
+    NFT-Freezing will use deterministic JCS serialization (RFC8785) to create the IPFS payload.
+    The payload is than used to create the Token-ID and IPFS CIDv1 URI (base16). The deterministic
+    payload is also returned (base64 encoded) for publishing to IPFS after the NFT has been minted.
+    """
+    data = anyobject.dict().get("__root__")
+    if not data:
+        return 400, Message(detail="No JSON data provided")
+
+    canonical = ic.json_canonical(data)
+    cid = ic.cidv1_hex(io.BytesIO(canonical))
+    token_id_num = ic.cidv1_to_token_id(cid)
+    return NftFrozen(
+        token_id_hex=cid.lstrip("f01551220"),
+        token_id_num=str(token_id_num),
+        metadata_ipfs_uri=f"ipfs://{cid}",
+        metadata_ipfs_payload=base64.b64encode(canonical).decode("ascii"),
+    )
+
+
+####################################################################################################
 # /task endpoints                                                                                  #
 ####################################################################################################
 
@@ -313,46 +366,6 @@ async def get_task(request, task_id: str):
     if not task:
         return 404, Message(detail="Task not found")
     return 200, task
-
-
-####################################################################################################
-# /nft endpoints                                                                                   #
-####################################################################################################
-
-
-@router.post(
-    "/nft",
-    tags=["nft"],
-    operation_id="post-nft",
-    summary="create nft",
-    response={201: NftPackage},
-)
-async def nft_post(request, data: NftPostRequest):
-    pass
-
-
-@router.post(
-    "/nft/freeze",
-    tags=["nft"],
-    operation_id="post-nft-freeze",
-    summary="freeze nft",
-    response={200: NftFrozen, 400: Message},
-    exclude_none=True,
-)
-async def nft_freeze_post(request, anyobject: AnyObject):
-    data = anyobject.dict().get("__root__")
-    if not data:
-        return 400, Message(detail="No JSON data provided")
-
-    canonical = ic.json_canonical(data)
-    cid = ic.cidv1_hex(io.BytesIO(canonical))
-    token_id_num = ic.cidv1_to_token_id(cid)
-    return NftFrozen(
-        token_id_hex=cid.lstrip("f01551220"),
-        token_id_num=str(token_id_num),
-        metadata_ipfs_uri=f"ipfs://{cid}",
-        metadata_ipfs_payload=base64.b64encode(canonical).decode("ascii"),
-    )
 
 
 ####################################################################################################

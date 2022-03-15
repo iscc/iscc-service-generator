@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-
 from data_url import DataURL
 from loguru import logger as log
 import os
@@ -8,7 +7,10 @@ import iscc_sdk as idk
 import iscc_core as ic
 from iscc_schema import IsccMeta
 from iscc_generator.download import download_media, download_url
+from iscc_generator.models import Nft
+from iscc_generator.schema import NftSchema
 from iscc_generator.storage import media_obj_from_path
+from constance import config
 
 
 def iscc_generator_task(pk: int):
@@ -86,31 +88,44 @@ def iscc_generator_task(pk: int):
     return dict(result=iscc_result.iscc)
 
 
-# def embed_metadata(media_id: int, meta: dict) -> str:
-#     """Embed metadata into a copy of the media object"""
-#
-#     from django.core.files.storage import Storage
-#
-#     # Get database object
-#     media_obj = Media.objects.get(media_id=media_id)
-#     meta = IsccMeta.parse_obj(meta)
-#
-#     # Copy file to local storage
-#     with TemporaryDirectory() as tempdir:
-#         tmpfile_path = Path(tempdir) / media_obj.source_file.name
-#         with tmpfile_path.open("wb") as tmpfile:
-#             with media_obj.source_file.open("rb") as infile:
-#                 data = infile.read(1024 * 1024)
-#                 while data:
-#                     tmpfile.write(data)
-#                     data = infile.read(1024 * 1024)
-#         # Embed metadata
-#         idk.image_meta_embed(tmpfile_path, meta=meta)
-#
-#         # Create new media object with updated file
-#         # new_media_obj = Media.objects.create()
-#         # name = f"{new_media_obj.flake}/{media_obj.name}"
-#
-#         with tmpfile_path.open("rb") as tmpfile:
-#             new_media_obj = Media.objects.create(source_file=tmpfile)
-#     return new_media_obj.flake
+def nft_generator_task(pk: int):
+    """
+    Create an NftPackage for an IsccCode database object.
+
+    :param int pk: Primary key of the Nft entry
+    :return: The result of the NFT processor
+    :rtype: dict
+    """
+
+    # Patch standard ISCC Metadata with NFT metadata
+    nft_obj = Nft.objects.get(pk=pk)
+    nft_patch = NftSchema.from_orm(nft_obj).dict(
+        exclude_unset=True, exclude_none=True, exclude_defaults=True
+    )
+    iscc_meta = nft_obj.iscc_code.result
+    iscc_meta.update(nft_patch)
+
+    # Set ISCC-ID if chain and wallet are provided
+    chain_map = dict(PRIVATE=0, BITCOIN=1, ETHEREUM=2, POLYGON=3)
+    iscc_code = iscc_meta["iscc"]
+    if nft_obj.chain and nft_obj.wallet:
+        iscc_id = ic.gen_iscc_id(
+            iscc_code=iscc_meta.iscc,
+            chain_id=chain_map[nft_obj.chain],
+            wallet=nft_obj.wallet,
+        )
+        iscc_meta["iscc"] = iscc_id["iscc"]
+
+    # Set NFT image IPFS hash
+    iscc_meta["image"] = f"ipfs://{nft_obj.iscc_code.source_file.cid}"
+
+    # Wrap in NFTPackage
+    np = dict(
+        nft_id=nft_obj.flake,
+        iscc_code=iscc_code,
+        nft_metadata=iscc_meta,
+        nft_image=f"{config.DOMAIN}{nft_obj.iscc_code.source_file.source_file.url}",
+    )
+    nft_obj.result = np
+    nft_obj.save()
+    return dict(result=nft_obj.flake)

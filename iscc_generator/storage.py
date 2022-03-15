@@ -2,7 +2,6 @@
 from io import BytesIO
 from os.path import basename, getsize, join
 import tempfile
-
 import translitcodec
 from django.core.files.storage import Storage, default_storage
 from pathvalidate import sanitize_filename
@@ -35,7 +34,9 @@ def media_obj_from_path(fp: str, original=None):
     elif mode_ == "audio":
         media_obj.metadata = idk.audio_meta_extract(fp)
 
+    media_obj.cid = idk.ipfs_cidv1(fp)
     media_obj.original = original
+
     storage_name = f"{media_obj.flake}/{filename}"
     media_obj.source_file.name = storage_name
     storage: Storage = default_storage

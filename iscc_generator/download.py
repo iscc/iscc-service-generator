@@ -4,6 +4,7 @@ import secrets
 from os.path import basename, join
 import tempfile
 from urllib.parse import urlparse
+import iscc_sdk as idk
 import requests
 from constance import config
 from ninja.errors import HttpError
@@ -34,10 +35,11 @@ def download_url(url):
     :param str url: Url for file download
     :return: local filepath
     """
-    stream = requests.get(url, stream=True)
+    headers = {"user-agent": f"ISCC/{idk.__version__} +http://iscc.codes"}
+    stream = requests.get(url, headers=headers, stream=True)
 
     # Check file size
-    size = stream.headers["Content-length"]
+    size = stream.headers.get("content-length")
     if size:
         size = int(size)
         limit = config.MAX_UPLOAD_SIZE * 1000000
@@ -45,7 +47,6 @@ def download_url(url):
             raise HttpError(
                 400, message=f"Download of {size} for {url} exceeds {limit} limit"
             )
-            # raise ValueError(f"Download of {size} for {url} exceeds {limit} limit")
 
     # Get filename
     filename = None

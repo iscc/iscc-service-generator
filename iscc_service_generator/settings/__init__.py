@@ -138,6 +138,11 @@ class QClusterSettings(BaseSettings):
 class ConstanceSettings(BaseSettings):
     CONSTANCE_BACKEND: str = "constance.backends.database.DatabaseBackend"
     CONSTANCE_CONFIG: Dict = {
+        "DOMAIN": (
+            "https://example.com",
+            "The domain where this service is hosted",
+            "url_field",
+        ),
         "MAX_UPLOAD_SIZE": (10, "Maximum size for media file uploads in MB"),
         "PREVIEW_IMAGE_SIZE": (
             128,
