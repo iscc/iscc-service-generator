@@ -7,8 +7,30 @@ from django.db import models
 from django_json_widget.widgets import JSONEditorWidget
 from django_object_actions import DjangoObjectActions, takes_instance_or_queryset
 from django_q.tasks import async_task
-from iscc_generator.models import IsccCode, Media
+from iscc_generator.models import IsccCode, Media, Nft
 from iscc_generator.tasks import iscc_generator_task
+
+
+@admin.register(Nft)
+class NftAdmin(admin.ModelAdmin):
+    list_display = (
+        "flake",
+        "iscc_code",
+        "chain",
+        "wallet",
+        "original",
+    )
+
+    formfield_overrides = {
+        models.URLField: {"widget": forms.URLInput(attrs={"size": 98})},
+        models.CharField: {"widget": forms.TextInput(attrs={"size": 98})},
+        models.TextField: {"widget": forms.Textarea(attrs={"cols": 98, "rows": 8})},
+        models.JSONField: {
+            "widget": JSONEditorWidget(
+                width="53em", height="18em", options={"mode": "view"}
+            )
+        },
+    }
 
 
 @admin.register(Media)
@@ -37,7 +59,11 @@ class MediaAdmin(admin.ModelAdmin):
     list_filter = ("type",)
 
     formfield_overrides = {
-        models.JSONField: {"widget": JSONEditorWidget(width="53em", height="28em")},
+        models.JSONField: {
+            "widget": JSONEditorWidget(
+                width="53em", height="28em", options={"mode": "view"}
+            )
+        },
     }
 
     @admin.display(description="original")
@@ -67,10 +93,7 @@ class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
     )
 
     list_filter = ("source_file__type",)
-    readonly_fields = (
-        "iscc",
-        "source_file",
-    )
+    readonly_fields = ("iscc",)
     fields = (
         "iscc",
         "source_file",
@@ -84,7 +107,11 @@ class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
         models.URLField: {"widget": forms.URLInput(attrs={"size": 98})},
         models.CharField: {"widget": forms.TextInput(attrs={"size": 98})},
         models.TextField: {"widget": forms.Textarea(attrs={"cols": 98, "rows": 8})},
-        models.JSONField: {"widget": JSONEditorWidget(width="53em", height="28em")},
+        models.JSONField: {
+            "widget": JSONEditorWidget(
+                width="53em", height="28em", options={"mode": "view"}
+            )
+        },
     }
 
     @admin.display(ordering="source_file__name")

@@ -183,3 +183,94 @@ class Media(GeneratorBaseModel):
                 self.metadata = meta
 
         super().save(*args, **kwargs)
+
+
+class Nft(GeneratorBaseModel):
+    class Meta:
+        verbose_name = _("NFT")
+
+    class Chain(models.TextChoices):
+        NONE = ""
+        PRIVATE = "PRIVATE"
+        BITCOIN = "BITCOIN"
+        ETHEREUM = "ETHEREUM"
+        POLYGON = "POLYGON"
+
+    iscc_code = models.ForeignKey(
+        IsccCode,
+        verbose_name=_("ISCC-CODE"),
+        null=True,
+        default=None,
+        on_delete=models.CASCADE,
+        help_text=_("ISCC-CODE of NFT."),
+    )
+
+    chain = models.CharField(
+        verbose_name=_("chain"),
+        max_length=32,
+        blank=True,
+        choices=Chain.choices,
+        default=Chain.NONE,
+        help_text=_("The blockchain on which the ISCC-CODE will be declared."),
+    )
+
+    wallet = models.CharField(
+        verbose_name=_("wallet"),
+        max_length=128,
+        blank=True,
+        default="",
+        help_text=_("The wallet-address that will sign the ISCC declaration."),
+    )
+
+    attributes = models.JSONField(
+        verbose_name=_("attributes"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("NFT attributes to be shown on marketplaces."),
+    )
+
+    external_url = models.URLField(
+        verbose_name=_("external url"),
+        blank=True,
+        default="",
+        max_length=4096,
+        help_text=_("External URL to be shown on marketplaces."),
+    )
+
+    redirect = models.URLField(
+        verbose_name=_("redirect"),
+        blank=True,
+        default="",
+        max_length=4096,
+        help_text=_(
+            "URL to which an ISCC resolver should redirect for the registered ISCC-ID."
+        ),
+    )
+
+    original = models.BooleanField(
+        verbose_name=_("original"),
+        null=True,
+        default=None,
+        help_text=_(
+            "Whether the signee claims to be the original creator of the digital content."
+        ),
+    )
+
+    verifications = models.JSONField(
+        verbose_name=_("verifications"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_(
+            "A list of self-verifications (Public URLs under the authority of the signee."
+        ),
+    )
+
+    result = models.JSONField(
+        verbose_name=_("result"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("The result returned by the NFT generator."),
+    )
