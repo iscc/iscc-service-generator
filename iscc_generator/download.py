@@ -36,7 +36,7 @@ def download_url(url):
     :return: local filepath
     """
     headers = {"user-agent": f"ISCC/{idk.__version__} +http://iscc.codes"}
-    stream = requests.get(url, headers=headers, stream=True)
+    stream = requests.get(url, headers=headers, stream=True, verify=False)
 
     # Check file size
     size = stream.headers.get("content-length")
