@@ -78,7 +78,6 @@ async def iscc_code_create(
     You can download the modified media asset based on the `vendor_id` field of the returned
     ISCC Metadata with a GET request to /media/<vendor_id>.
     """
-
     # validate the request
     if not source_file and not meta.source_url:
         return 400, Message(detail="Either source_file or source_url is required")
@@ -235,8 +234,12 @@ async def media_metadata_embed(request, media_id: str, meta: MediaEmbeddedMetada
 
 @sync_to_async
 def async_media_metadata_embed(media_obj: Media, meta: MediaEmbeddedMetadata):
-    meta = IsccMeta.parse_obj(meta.dict())
+    """
+    Embed metadata into a media file.
 
+    # TODO - we need to download/reupload the file - move this to a worker task
+    """
+    meta = IsccMeta.parse_obj(meta.dict())
     # Copy file to local storage
     filename = basename(media_obj.source_file.name)
     with TemporaryDirectory() as tempdir:

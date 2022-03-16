@@ -78,6 +78,7 @@ class GeneralSettings(BaseSettings):
 
     # Upload file pre-processing does not work with InMemoryUploadedFile!!!
     FILE_UPLOAD_HANDLERS: List[str] = [
+        "iscc_generator.uploadhandler.IsccUploadHandler",
         "django.core.files.uploadhandler.TemporaryFileUploadHandler",
     ]
 
@@ -145,7 +146,7 @@ class ConstanceSettings(BaseSettings):
         ),
         "DOWNLOAD_TIMEOUT": (5, "Timeout in seconds for media downloads"),
         "DOWNLOAD_VERIFY_TLS": (True, "Verify TLS for media downloads"),
-        "MAX_UPLOAD_SIZE": (10, "Maximum size for media file uploads in MB"),
+        "DOWNLOAD_SIZE_LIMIT": (10, "Maximum size for media file downloads in MB"),
         "PREVIEW_IMAGE_SIZE": (
             128,
             "Size of generated preview images in number of pixels (not implemented yet)",
@@ -197,6 +198,10 @@ class ConstanceSettings(BaseSettings):
     }
 
 
+class IsccGeneratorSettings(BaseSettings):
+    UPLOAD_SIZE_LIMIT: int = 100
+
+
 class ProjectSettings(
     GeneralSettings,
     I18NSettings,
@@ -204,6 +209,7 @@ class ProjectSettings(
     MediaSettings,
     QClusterSettings,
     ConstanceSettings,
+    IsccGeneratorSettings,
 ):
     pass
 

@@ -47,8 +47,8 @@ def download_url(url):
     size = stream.headers.get("content-length")
     if size:
         size = int(size)
-        limit = config.MAX_UPLOAD_SIZE * 1000000
-        if size and size > config.MAX_UPLOAD_SIZE * 1000000:
+        limit = config.DOWNLOAD_SIZE_LIMIT * 1000000
+        if size and size > limit:
             raise HttpError(
                 400, message=f"Download of {size} for {url} exceeds {limit} limit"
             )

@@ -183,6 +183,7 @@ class Media(GeneratorBaseModel):
             self.type = self.source_file.file.content_type
             self.size = self.source_file.size
             fp = self.source_file.file.temporary_file_path()
+            # TODO ipfs hashing may take a long for large files - consider doing this in a worker
             self.cid = idk.ipfs_cidv1(fp)
             mt, mode_ = idk.mediatype_and_mode(fp)
             if mode_ == "image":
