@@ -8,7 +8,6 @@ import iscc_sdk as idk
 import requests
 from constance import config
 from ninja.errors import HttpError
-
 from iscc_generator.models import Media
 from iscc_generator.storage import clean_filename, store_local_temp
 
@@ -36,7 +35,13 @@ def download_url(url):
     :return: local filepath
     """
     headers = {"user-agent": f"ISCC/{idk.__version__} +http://iscc.codes"}
-    stream = requests.get(url, headers=headers, stream=True, verify=False)
+    stream = requests.get(
+        url,
+        headers=headers,
+        stream=True,
+        verify=config.DOWNLOAD_VERIFY_TLS,
+        timeout=config.DOWNLOAD_TIMEOUT,
+    )
 
     # Check file size
     size = stream.headers.get("content-length")

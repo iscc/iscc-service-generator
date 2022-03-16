@@ -143,6 +143,8 @@ class ConstanceSettings(BaseSettings):
             "The domain where this service is hosted",
             "url_field",
         ),
+        "DOWNLOAD_TIMEOUT": (5, "Timeout in seconds for media downloads"),
+        "DOWNLOAD_VERIFY_TLS": (True, "Verify TLS for media downloads"),
         "MAX_UPLOAD_SIZE": (10, "Maximum size for media file uploads in MB"),
         "PREVIEW_IMAGE_SIZE": (
             128,
