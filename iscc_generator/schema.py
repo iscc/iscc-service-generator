@@ -1,7 +1,26 @@
 from typing import Dict, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from ninja import ModelSchema
 from iscc_generator.models import Nft
+from iscc_sdk import IsccMeta as BaseIsccMeta
+
+
+class IsccMeta(BaseIsccMeta):
+    """
+    Adds vendor_id field.
+
+    TODO: add to iscc-schema and remove this patch.
+    """
+
+    vendor_id: Optional[str] = Field(
+        None,
+        description="Vendor specific internal identifier for media file.",
+    )
+
+    # mode: Optional[str] = Field(
+    #     None,
+    #     description="The perceptual mode used to create the ISCC-CODE",
+    # )
 
 
 class AnyObject(BaseModel):

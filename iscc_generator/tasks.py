@@ -5,10 +5,9 @@ from loguru import logger as log
 import os
 import iscc_sdk as idk
 import iscc_core as ic
-from iscc_schema import IsccMeta
 from iscc_generator.download import download_media, download_url
 from iscc_generator.models import Nft
-from iscc_generator.schema import NftSchema
+from iscc_generator.schema import NftSchema, IsccMeta
 from iscc_generator.storage import media_obj_from_path
 from constance import config
 
@@ -75,6 +74,11 @@ def iscc_generator_task(pk: int):
 
     # generate iscc code
     iscc_result = idk.code_iscc(temp_fp)
+    # Updgrade to customized
+    iscc_result = IsccMeta.parse_obj(iscc_result.dict())
+    # Set vendor_id
+    iscc_result.vendor_id = new_media_obj.flake
+
     iscc_obj.iscc = iscc_result.iscc
     iscc_obj.result = iscc_result.dict(exclude_defaults=False)
     iscc_obj.save()

@@ -11,7 +11,6 @@ from data_url import DataURL
 from django.shortcuts import redirect
 from django_q.tasks import async_task, result
 from django_q.models import Task, OrmQ
-from iscc_sdk import IsccMeta
 from iscc_schema.generator import (
     MediaID,
     MediaEmbeddedMetadata,
@@ -21,7 +20,7 @@ from iscc_schema.generator import (
 from ninja import Router, File, Form, ModelSchema, Schema, UploadedFile
 from iscc_generator.base import get_or_404
 from iscc_generator.models import IsccCode, Media, Nft
-from iscc_generator.schema import AnyObject, NftRequest
+from iscc_generator.schema import AnyObject, NftRequest, IsccMeta
 from iscc_generator.storage import media_obj_from_path
 from iscc_generator.tasks import iscc_generator_task, nft_generator_task
 from constance import config
@@ -40,10 +39,6 @@ class IsccRequest(ModelSchema):
     class Config:
         model = IsccCode
         model_fields = ["source_url", "name", "description", "meta"]
-
-
-class IsccResponse(IsccMeta):
-    mode: str
 
 
 class TaskResponse(Schema):
@@ -78,6 +73,10 @@ async def iscc_code_create(
     Provide at least a `source_file` or optionally a `source_url`. If processing finishes fast
     you will receive an `IsccResponse`. If processing exeeds the configured time limit you will
     receive a `TaskResponse` to poll for the result at /task/{task_id}.
+
+    Metadata supplied with the file upload will be embedded into the media asset (if possible).
+    You can download the modified media asset based on the `vendor_id` field of the returned
+    ISCC Metadata with a GET request to /media/<vendor_id>.
     """
 
     # validate the request
