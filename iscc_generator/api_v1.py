@@ -17,8 +17,9 @@ from iscc_schema.generator import (
     NftPackage,
     NftFrozen,
 )
-from ninja import Router, File, Form, ModelSchema, Schema, UploadedFile
+from ninja import Router, File, Form, Schema, UploadedFile
 from iscc_generator.base import get_or_404
+from iscc_generator.codegen.spec import IsccCodePostRequest, IsccMetadata
 from iscc_generator.models import IsccCode, Media, Nft
 from iscc_generator.schema import AnyObject, NftRequest, IsccMeta
 from iscc_generator.storage import media_obj_from_path
@@ -35,12 +36,6 @@ class Message(Schema):
     detail: str
 
 
-class IsccRequest(ModelSchema):
-    class Config:
-        model = IsccCode
-        model_fields = ["source_url", "name", "description", "meta"]
-
-
 class TaskResponse(Schema):
     id: str
     name: str
@@ -53,7 +48,7 @@ class TaskResponse(Schema):
 
 @router.post(
     "/iscc_code",
-    response={201: IsccMeta, 202: TaskResponse, 400: Message, 500: Message},
+    response={201: IsccMetadata, 202: TaskResponse, 400: Message, 500: Message},
     summary="create iscc",
     tags=["iscc"],
     operation_id="iscc-code-create",
@@ -65,7 +60,7 @@ async def iscc_code_create(
     source_file: Optional[UploadedFile] = File(
         None, description="The file used for generating the ISCC"
     ),
-    meta: IsccRequest = Form(...),
+    meta: IsccCodePostRequest = Form(...),
 ):
     """
     ## Generate an ISCC for a media asset.
@@ -75,7 +70,7 @@ async def iscc_code_create(
     receive a `TaskResponse` to poll for the result at /task/{task_id}.
 
     Metadata supplied with the file upload will be embedded into the media asset (if possible).
-    You can download the modified media asset based on the `vendor_id` field of the returned
+    You can download the modified media asset based on the `media_id` field of the returned
     ISCC Metadata with a GET request to /media/<vendor_id>.
     """
     # validate the request

@@ -12,15 +12,13 @@ class IsccMeta(BaseIsccMeta):
     TODO: add to iscc-schema and remove this patch.
     """
 
-    vendor_id: Optional[str] = Field(
+    media_id: Optional[str] = Field(
         None,
         description="Vendor specific internal identifier for media file.",
     )
 
-    # mode: Optional[str] = Field(
-    #     None,
-    #     description="The perceptual mode used to create the ISCC-CODE",
-    # )
+    class Config(BaseIsccMeta.Config):
+        orm_mode = True
 
 
 class AnyObject(BaseModel):
