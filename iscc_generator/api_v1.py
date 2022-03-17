@@ -317,6 +317,33 @@ async def nft_post(request, item: NftRequest):
         return 202, task
 
 
+@router.get(
+    "/nft/{nft_id}",
+    tags=["nft"],
+    operation_id="get-nft",
+    summary="get nft",
+    response={200: NftPackage, 404: Message},
+    exclude_none=True,
+)
+async def nft_get(request, nft_id: str):
+    nft_obj: Nft = await get_or_404(Nft, nft_id)
+    return nft_obj.result
+
+
+@router.delete(
+    "/nft/{nft_id}",
+    tags=["nft"],
+    operation_id="delete-nft",
+    response={200: Message, 404: None},
+    summary="delete nft",
+)
+async def nft_delete(request, nft_id: str):
+    nft_obj: Nft = await get_or_404(Nft, nft_id)
+    await sync_to_async(nft_obj.delete)()
+
+    return 200, Message(detail="Media asset deleted")
+
+
 @router.post(
     "/nft/freeze",
     tags=["nft"],

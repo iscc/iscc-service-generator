@@ -80,7 +80,7 @@ def iscc_generator_task(pk: int):
     iscc_result.vendor_id = new_media_obj.flake
 
     iscc_obj.iscc = iscc_result.iscc
-    iscc_obj.result = iscc_result.dict(exclude_defaults=False)
+    iscc_obj.result = iscc_result.dict()
     iscc_obj.save()
 
     # cleanup
