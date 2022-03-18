@@ -364,6 +364,3 @@ class Nft(GeneratorBaseModel):
 
     def __str__(self):
         return f"NFT-{self.flake}"
-
-    def patch(self) -> dict:
-        """Return data used for patching ISCC Metadata"""
