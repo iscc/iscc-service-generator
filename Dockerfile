@@ -78,7 +78,7 @@ COPY . /app/
 
 FROM python:3.9-slim AS prod-runtime
 
-RUN apt-get update && apt-get install --no-install-recommends -y libmagic1 libpq5 && rm -rf /var/lib/apt/lists
+RUN apt-get update && apt-get install --no-install-recommends -y libmagic1 libpq5 libtag1v5-vanilla && rm -rf /var/lib/apt/lists
 
 # Disable stdout/stderr buggering, can cause issues with Docker logs
 ENV PYTHONUNBUFFERED=1
@@ -87,6 +87,7 @@ ENV PATH="/venv/bin:$PATH"
 ENV VIRTUAL_ENV=/venv
 
 COPY --from=prod-build /root/.local/share/iscc-sdk /root/.local/share/iscc-sdk
+COPY --from=prod-build /root/.ipfs /root/.ipfs
 COPY --from=prod-build /app /app
 COPY --from=prod-build /venv /venv
 
