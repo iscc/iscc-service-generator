@@ -16,7 +16,7 @@ from iscc_schema.generator import (
     MediaEmbeddedMetadata,
     NftFrozen,
 )
-from iscc_generator.schema import NftPackage
+from iscc_generator.schema import NftPackage, QueuedTasks
 from ninja import Router, File, Form, Schema, UploadedFile
 from iscc_generator.base import get_or_404
 from iscc_generator.codegen.spec import IsccCodePostRequest, IsccMetadata
@@ -383,12 +383,25 @@ async def nft_freeze(request, anyobject: AnyObject):
     exclude_none=True,
     tags=["task"],
     operation_id="get-task",
+    summary="get task",
 )
 async def get_task(request, task_id: str):
     task = await async_find_task(task_id)
     if not task:
         return 404, Message(detail="Task not found")
     return 200, task
+
+
+@router.get(
+    "/queued_tasks",
+    tags=["task"],
+    response=QueuedTasks,
+    summary="number of queued tasks",
+)
+async def get_health(request):
+    """Returns number of queued tasks."""
+    queued_tasks = await sync_to_async(OrmQ.objects.count)()
+    return QueuedTasks(queued_tasks=queued_tasks)
 
 
 ####################################################################################################

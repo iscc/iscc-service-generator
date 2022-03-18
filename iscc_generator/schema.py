@@ -1,6 +1,6 @@
 from typing import Dict, Optional
 from pydantic import BaseModel, Field
-from ninja import ModelSchema
+from ninja import ModelSchema, Schema
 from iscc_generator.models import Nft
 from iscc_sdk import IsccMeta as BaseIsccMeta
 from iscc_generator.codegen.spec import NftPackage as BaseNftPackage
@@ -46,3 +46,9 @@ class NftSchema(ModelSchema):
             "original",
             "verifications",
         ]
+
+
+class QueuedTasks(Schema):
+    """Number of tasks in the task queue."""
+
+    queued_tasks: int
