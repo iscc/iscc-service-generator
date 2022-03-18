@@ -47,4 +47,5 @@ build-backend = "poetry.core.masonry.api"
 DJANGO_SETTINGS_MODULE = "iscc_service_generator.settings"
 
 [tool.poe.tasks]
-install = { cmd = "python -m dev.install", help = "Install app for development"}
+install = { cmd = "python -m dev.install", help = "Install app with secure superuser password"}
+demo = { cmd = "python -m dev.demo", help = "Install app for development with demo/demo user"}
