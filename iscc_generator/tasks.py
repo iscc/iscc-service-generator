@@ -130,7 +130,7 @@ def nft_generator_task(pk: int):
     iscc_code = iscc_meta["iscc"]
     if nft_obj.chain and nft_obj.wallet:
         iscc_id = ic.gen_iscc_id(
-            iscc_code=iscc_meta.iscc,
+            iscc_code=iscc_meta["iscc"],
             chain_id=chain_map[nft_obj.chain],
             wallet=nft_obj.wallet,
         )

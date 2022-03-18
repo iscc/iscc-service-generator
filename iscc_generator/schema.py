@@ -30,7 +30,7 @@ class AnyObject(BaseModel):
 
 class NftPackage(BaseNftPackage):
 
-    nft_metadata: Dict
+    nft_metadata: IsccMeta
 
 
 class NftSchema(ModelSchema):
