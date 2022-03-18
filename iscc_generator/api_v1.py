@@ -14,16 +14,17 @@ from django_q.models import Task, OrmQ
 from iscc_schema.generator import (
     MediaID,
     MediaEmbeddedMetadata,
-    NftPackage,
     NftFrozen,
 )
+from iscc_generator.schema import NftPackage
 from ninja import Router, File, Form, Schema, UploadedFile
 from iscc_generator.base import get_or_404
 from iscc_generator.codegen.spec import IsccCodePostRequest, IsccMetadata
 from iscc_generator.models import IsccCode, Media, Nft
-from iscc_generator.schema import AnyObject, NftRequest, IsccMeta
+from iscc_generator.schema import AnyObject, IsccMeta
 from iscc_generator.storage import media_obj_from_path
 from iscc_generator.tasks import iscc_generator_task, nft_generator_task
+from iscc_generator.codegen.spec import NftPostRequest
 from constance import config
 import iscc_sdk as idk
 import iscc_core as ic
@@ -48,7 +49,7 @@ class TaskResponse(Schema):
 
 @router.post(
     "/iscc_code",
-    response={201: IsccMetadata, 202: TaskResponse, 400: Message, 500: Message},
+    response={201: IsccMeta, 202: TaskResponse, 400: Message, 500: Message},
     summary="create iscc",
     tags=["iscc"],
     operation_id="iscc-code-create",
@@ -277,24 +278,23 @@ async def media_metadata_get(request, media_id: str):
     tags=["nft"],
     operation_id="post-nft",
     summary="create nft",
-    response={201: NftPackage, 400: Message, 404: Message, 500: Message},
-    exclude_unset=True,
+    response={201: NftPackage, 400: Message, 404: Message, 422: None, 500: Message},
+    exclude_unset=False,
+    exclude_defaults=False,
+    exclude_none=True,
+    by_alias=True,
 )
-async def nft_post(request, item: NftRequest):
+async def nft_post(request, item: NftPostRequest):
     """Creates an NFT package"""
-    if not item.iscc_code:
-        return 400, Message(detail="missing required field 'iscc_code'")
-    try:
-        ic.iscc_validate(item.iscc_code, strict=True)
-    except Exception as e:
-        return 400, Message(detail=f"{item.iscc_code} is an invalid ISCC-CODE - {e}")
-    try:
-        iscc_obj = await sync_to_async(IsccCode.objects.get)(iscc=item.iscc_code)
-    except IsccCode.DoesNotExist:
-        return 404, Message(detail=f"{item.iscc_code} does not exist")
-    item = item.dict()
-    item["iscc_code"] = iscc_obj
-    nft_obj = await sync_to_async(Nft.objects.create)(**item)
+    media_obj_image = await get_or_404(Media, item.media_id_image)
+    if item.media_id_animation:
+        media_obj_animation = await get_or_404(Media, item.media_id_animation)
+    else:
+        media_obj_animation = None
+    data = item.dict(exclude={"media_id_image", "media_id_animation"})
+    nft_obj = await sync_to_async(Nft.objects.create)(
+        media_id_image=media_obj_image, media_id_animation=media_obj_animation, **data
+    )
 
     # start processing
     task_id = await sync_to_async(async_task)(nft_generator_task, nft_obj.pk)
@@ -340,14 +340,13 @@ async def nft_delete(request, nft_id: str):
 
 
 @router.post(
-    "/nft/freeze",
+    "/freeze",
     tags=["nft"],
-    operation_id="post-nft-freeze",
+    operation_id="freeze-nft",
     summary="freeze nft",
     response={200: NftFrozen, 400: Message},
-    exclude_none=True,
 )
-async def nft_freeze_post(request, anyobject: AnyObject):
+async def nft_freeze(request, anyobject: AnyObject):
     """
     Creates a Token-ID and IPFS CIDv1 for NFT metadata.
 

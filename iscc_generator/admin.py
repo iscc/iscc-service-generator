@@ -13,7 +13,7 @@ from iscc_generator.tasks import iscc_generator_task
 class NftAdmin(admin.ModelAdmin):
     list_display = (
         "flake",
-        "iscc_code",
+        "media_id_image",
         "chain",
         "wallet",
         "original",

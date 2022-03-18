@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from ninja import ModelSchema
 from iscc_generator.models import Nft
 from iscc_sdk import IsccMeta as BaseIsccMeta
+from iscc_generator.codegen.spec import NftPackage as BaseNftPackage
 
 
 class IsccMeta(BaseIsccMeta):
@@ -27,29 +28,19 @@ class AnyObject(BaseModel):
     __root__: Dict
 
 
-class NftRequest(ModelSchema):
+class NftPackage(BaseNftPackage):
 
-    iscc_code: Optional[str] = None
-
-    class Config:
-        model = Nft
-        model_fields = [
-            "iscc_code",
-            "chain",
-            "wallet",
-            "attributes",
-            "external_url",
-            "redirect",
-            "original",
-            "verifications",
-        ]
+    nft_metadata: Dict
 
 
 class NftSchema(ModelSchema):
     class Config:
         model = Nft
         model_fields = [
+            "chain",
+            "wallet",
             "attributes",
+            "properties",
             "external_url",
             "redirect",
             "original",

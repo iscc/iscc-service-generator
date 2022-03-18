@@ -33,6 +33,7 @@ class IsccCode(GeneratorBaseModel):
         blank=True,
         default=None,
         on_delete=models.CASCADE,
+        related_name="iscc_codes",
         help_text=_("File used for ISCC-CODE creation"),
     )
 
@@ -123,7 +124,8 @@ class IsccCode(GeneratorBaseModel):
     def get_metadata(self) -> idk.IsccMeta:
         """Returns embedable metadata as IsccMeta object"""
         data = model_to_dict(
-            self, fields=("name", "description", "meta", "creator", "license", "aquire")
+            self,
+            fields=("name", "description", "meta", "creator", "license", "acquire"),
         )
         return idk.IsccMeta.parse_obj(data)
 
@@ -255,14 +257,26 @@ class Nft(GeneratorBaseModel):
         ETHEREUM = "ETHEREUM"
         POLYGON = "POLYGON"
 
-    iscc_code = models.ForeignKey(
-        IsccCode,
-        verbose_name=_("ISCC-CODE"),
+    media_id_image = models.ForeignKey(
+        Media,
+        verbose_name=_("media image"),
         null=True,
         blank=True,
         default=None,
         on_delete=models.CASCADE,
-        help_text=_("ISCC-CODE of NFT."),
+        related_name="nft_image",
+        help_text=_("ID of Media object to be used as NFT immage"),
+    )
+
+    media_id_animation = models.ForeignKey(
+        Media,
+        verbose_name=_("media animation"),
+        null=True,
+        blank=True,
+        default=None,
+        on_delete=models.CASCADE,
+        related_name="nft_animation",
+        help_text=_("ID of Media object to be used as NFT animation"),
     )
 
     chain = models.CharField(
@@ -290,6 +304,14 @@ class Nft(GeneratorBaseModel):
         blank=True,
         default=None,
         help_text=_("NFT attributes to be shown on marketplaces."),
+    )
+
+    properties = models.JSONField(
+        verbose_name=_("properties"),
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("NFT properties to be shown on marketplaces."),
     )
 
     external_url = models.URLField(

@@ -68,14 +68,17 @@ def iscc_generator_task(pk: int):
         iscc_obj.save()
 
     # generate iscc code
-    iscc_result = idk.code_iscc(temp_fp)
-    # Updgrade to customized
-    iscc_result = IsccMeta.parse_obj(iscc_result.dict())
-    # Set vendor_id
+    iscc_result_obj = idk.code_iscc(temp_fp)
+    # iscc_result_data = iscc_result_obj.dict(by_alias=True, exclude_none=True, exclude_unset=False)
+    # # Updgrade to customized
+    iscc_result = IsccMeta.parse_obj(iscc_result_obj.dict())
+    # Set media_id
     iscc_result.media_id = media_obj.flake
 
-    iscc_obj.iscc = iscc_result.iscc
-    iscc_obj.result = iscc_result.dict()
+    iscc_obj.iscc = iscc_result_obj.iscc
+    iscc_obj.result = iscc_result.dict(
+        by_alias=True, exclude_none=True, exclude_unset=False
+    )
     iscc_obj.save()
 
     # local file cleanup
@@ -95,13 +98,31 @@ def nft_generator_task(pk: int):
     :return: The result of the NFT processor
     :rtype: dict
     """
+    nft_obj = Nft.objects.get(pk=pk)
+
+    # Choose the Media object
+    media_obj = (
+        nft_obj.media_id_animation
+        if nft_obj.media_id_animation
+        else nft_obj.media_id_image
+    )
+
+    # Get or create IsccCode
+    if media_obj.iscc_codes.exists():
+        iscc_obj = media_obj.iscc_codes.first()
+    else:
+        # Create ISCC-CODE
+        from iscc_generator.models import IsccCode
+
+        iscc_obj = IsccCode.objects.create(source_file=media_obj)
+        iscc_generator_task(iscc_obj.pk)
+        iscc_obj.refresh_from_db()
 
     # Patch standard ISCC Metadata with NFT metadata
-    nft_obj = Nft.objects.get(pk=pk)
     nft_patch = NftSchema.from_orm(nft_obj).dict(
         exclude_unset=True, exclude_none=True, exclude_defaults=True
     )
-    iscc_meta = nft_obj.iscc_code.result
+    iscc_meta = iscc_obj.result
     iscc_meta.update(nft_patch)
 
     # Set ISCC-ID if chain and wallet are provided
@@ -115,15 +136,17 @@ def nft_generator_task(pk: int):
         )
         iscc_meta["iscc"] = iscc_id["iscc"]
 
-    # Set NFT image IPFS hash
-    iscc_meta["image"] = f"ipfs://{nft_obj.iscc_code.source_file.cid}"
+    # Set NFT IPFS hashes
+    iscc_meta["image"] = f"ipfs://{nft_obj.media_id_image.cid}"
+    if nft_obj.media_id_animation:
+        iscc_meta["animation_url"] = f"ipfs://{nft_obj.media_id_animation.cid}"
 
     # Wrap in NFTPackage
     np = dict(
         nft_id=nft_obj.flake,
         iscc_code=iscc_code,
         nft_metadata=iscc_meta,
-        nft_image=f"{config.DOMAIN}{nft_obj.iscc_code.source_file.source_file.url}",
+        nft_image=f"{config.DOMAIN}{media_obj.source_file.url}",
     )
     nft_obj.result = np
     nft_obj.save()
