@@ -309,6 +309,14 @@ class NftMetadata(BaseModel):
             {"display_type": "number", "trait_type": "GENERATION", "value": 1},
         ],
     )
+    properties: Optional[Dict[str, Any]] = Field(
+        None,
+        description=(
+            "Arbitrary properties. Values may be strings, numbers, object or arrays."
+            " Properties defined here may show up on NFT marketplaces. See"
+            " [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155#metadata)"
+        ),
+    )
     external_url: Optional[AnyUrl] = Field(
         None,
         description=(
@@ -333,7 +341,7 @@ class NftMetadata(BaseModel):
         description="URL to which an ISCC resolver should redirect the ISCC-ID.",
         example="https://example.com/redirect-here-for-iscc-id",
     )
-    verifications: Optional[List[Dict[str, Any]]] = Field(
+    verifications: Optional[List[AnyUrl]] = Field(
         None,
         description=(
             "A list of self-verifications. Self-verifications are public URLs under the"
@@ -342,7 +350,7 @@ class NftMetadata(BaseModel):
             " signees wallet address in the format of"
             " `verify:<multihash-of-wallet-address>:verify`."
         ),
-        example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
+        example=["https://twitter.com/titusz/status/1490104312051257347"],
     )
 
 
@@ -484,10 +492,39 @@ class Chain(Enum):
 
 
 class NftPostRequest(BaseModel):
-    media_id_image: Optional[str] = None
-    media_id_animation: Optional[str] = None
-    attributes: Optional[Dict[str, Any]] = None
-    external_url: Optional[AnyUrl] = None
+    media_id_image: constr(min_length=13, max_length=13) = Field(
+        ...,
+        description="The `media_id` of the image for the NFT",
+        example="05VJUVTH3DCP6",
+    )
+    media_id_animation: Optional[constr(min_length=13, max_length=13)] = Field(
+        None,
+        description="Optional `media_id` of an animation for the NFT",
+        example="05VJUVTH3DCP6",
+    )
+    attributes: Optional[List[Dict[str, Any]]] = Field(
+        None,
+        description=(
+            "Similar to properties but as an array of objects. These attributes will"
+            " show up on some NFT marketplaces."
+        ),
+    )
+    properties: Optional[Dict[str, Any]] = Field(
+        None,
+        description=(
+            "Arbitrary properties. Values may be strings, numbers, object or arrays."
+            " Properties defined here may show up on NFT marketplaces. See"
+            " [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155#metadata)"
+        ),
+    )
+    external_url: Optional[AnyUrl] = Field(
+        None,
+        description=(
+            "This is the URL that will appear below the asset's image on some NFT"
+            " Marketplaces and will allow users to leave the site and view the item on"
+            " your site."
+        ),
+    )
     chain: Optional[Chain] = Field(
         None, description="The blockchain ISCC-CODE declaration.", example="POLYGON"
     )
@@ -496,10 +533,30 @@ class NftPostRequest(BaseModel):
         description="The wallet-address used for ISCC-CODE decleration.",
         example="0xb794f5ea0ba39494ce839613fffba74279579268",
     )
-    license: Optional[AnyUrl] = None
-    original: Optional[bool] = None
-    redirect: Optional[AnyUrl] = None
-    verifications: Optional[List[AnyUrl]] = None
+    original: Optional[bool] = Field(
+        None,
+        description=(
+            "The signee of the declaring transaction claims to be the original creator"
+            " of the work manifested by the identified digital content."
+        ),
+    )
+    redirect: Optional[AnyUrl] = Field(
+        None,
+        description=(
+            "URL to which a resolver should redirect an ISCC-ID that has been minted"
+            " from a declartion that includes the IPFS-hash of this metadata instance."
+        ),
+    )
+    verifications: Optional[List[AnyUrl]] = Field(
+        None,
+        description=(
+            "A list of self-verifications. Self-verifications are public URLs under the"
+            " account/authority of the signee. The verification URL must respond to a"
+            " GET request with text that contains a multihash of the ISCC declaration"
+            " signees wallet address in the format of"
+            " `verify:<multihash-of-wallet-address>:verify`."
+        ),
+    )
 
 
 class NftFreezePostRequest(BaseModel):
