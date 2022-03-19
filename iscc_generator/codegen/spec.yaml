@@ -231,7 +231,6 @@ components:
           type: string
           format: uri
           description: URL of file used for generating the ISCC.
-          maxLength: 4096
           example: 'https://picsum.photos/200/300.jpg'
     MediaID:
       title: MediaID
@@ -334,7 +333,6 @@ components:
           type: string
           description: URL for acquiring a license for the item.
           format: uri
-          maxLength: 4096
           example: 'https://example.com/buy-this-item-here'
         mode:
           type: string
@@ -483,9 +481,6 @@ components:
           description: The **ISCC-ID** of the digital content.
           example: 'ISCC:MEAJU5AXCPOIOYFL'
           pattern: '^ISCC:[A-Z2-7]{10,73}$'
-          minLength: 15
-          maxLength: 73
-          format: uri
         name:
           type: string
           description: >-
@@ -697,7 +692,6 @@ components:
           type: string
           description: URL for acquiring a license for the item.
           format: uri
-          maxLength: 4096
           example: 'https://example.com/buy-this-item-here'
   requestBodies:
     MediaUploadRequest:

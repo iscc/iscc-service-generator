@@ -11,11 +11,6 @@ from data_url import DataURL
 from django.shortcuts import redirect
 from django_q.tasks import async_task, result
 from django_q.models import Task, OrmQ
-from iscc_schema.generator import (
-    MediaID,
-    MediaEmbeddedMetadata,
-    NftFrozen,
-)
 from iscc_generator.schema import NftPackage, QueuedTasks
 from ninja import Router, File, Form, Schema, UploadedFile
 from iscc_generator.base import get_or_404
@@ -24,7 +19,12 @@ from iscc_generator.models import IsccCode, Media, Nft
 from iscc_generator.schema import AnyObject, IsccMeta
 from iscc_generator.storage import media_obj_from_path
 from iscc_generator.tasks import iscc_generator_task, nft_generator_task
-from iscc_generator.codegen.spec import NftPostRequest
+from iscc_generator.codegen.spec import (
+    NftPostRequest,
+    MediaEmbeddedMetadata,
+    NftFrozen,
+    MediaID,
+)
 from constance import config
 import iscc_sdk as idk
 import iscc_core as ic

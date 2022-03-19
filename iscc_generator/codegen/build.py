@@ -27,12 +27,13 @@ def build_spec():
         reuse_model=True,
         disable_appending_item_suffix=True,
         target_python_version=PythonVersion.PY_39,
+        field_constraints=True,  # This does not allow format-uri with maxLength constraint
     )
 
     # Patch BaseModel & AnyUrl
-    marker = "from pydantic import AnyUrl, BaseModel, Field, constr\n"
+    marker = "from pydantic import AnyUrl, BaseModel, Field\n"
     replace = (
-        "from pydantic import Field, constr\n"
+        "from pydantic import Field\n"
         "from iscc_generator.codegen.fields import AnyUrl\n"
         "from iscc_generator.codegen.base import BaseModel\n"
     )

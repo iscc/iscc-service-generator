@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, constr
+from pydantic import Field
 from iscc_generator.codegen.fields import AnyUrl
 from iscc_generator.codegen.base import BaseModel
 
@@ -32,8 +32,12 @@ class MediaID(BaseModel):
     Media-ID
     """
 
-    media_id: Optional[constr(min_length=13, max_length=13)] = Field(
-        None, description="Media file ID", example="05VJUVTH3DCP6"
+    media_id: Optional[str] = Field(
+        None,
+        description="Media file ID",
+        example="05VJUVTH3DCP6",
+        max_length=13,
+        min_length=13,
     )
 
 
@@ -93,38 +97,44 @@ class IsccMetadata(BaseModel):
             " schema."
         ),
     )
-    iscc: Optional[
-        constr(regex=r"^ISCC:[A-Z2-7]{10,73}$", min_length=15, max_length=73)
-    ] = Field(
+    iscc: Optional[str] = Field(
         None,
         description="An **ISCC-CODE** in canonical representation.",
         example="ISCC:KACYPXW445FTYNJ3CYSXHAFJMA2HUWULUNRFE3BLHRSCXYH2M5AEGQY",
+        max_length=73,
+        min_length=15,
+        regex="^ISCC:[A-Z2-7]{10,73}$",
     )
-    media_id: Optional[constr(min_length=13, max_length=13)] = Field(
+    media_id: Optional[str] = Field(
         None,
         description="Vendor specific internal identifier for media file.",
         example="05VJUVTH3DCP6",
+        max_length=13,
+        min_length=13,
     )
-    name: Optional[constr(max_length=128)] = Field(
+    name: Optional[str] = Field(
         None,
         description=(
             "The title or name of the intangible creation manifested by the identified"
             " *digital content*."
         ),
         example="Harry Potter and the Philosopher's Stone",
+        max_length=128,
     )
-    description: Optional[constr(max_length=4096)] = Field(
+    description: Optional[str] = Field(
         None,
         description="Description of the *digital content* identified by the **ISCC**.",
         example=(
             "A 2001 fantasy film directed by Chris Columbus and distributed by Warner"
             " Bros."
         ),
+        max_length=4096,
     )
-    meta: Optional[constr(max_length=16384)] = Field(
+    meta: Optional[str] = Field(
         None,
         description="Extended metadata, wrapped in a Data-URL string.",
         example="data:application/json;charset=utf-8;base64,eyJleHRlbmRlZCI6Im1ldGFkYXRhIn0=",
+        max_length=16384,
     )
     creator: Optional[str] = Field(
         None,
@@ -201,7 +211,7 @@ class IsccMetadata(BaseModel):
     created: Optional[datetime] = Field(
         None, description="Datetime the ISCC was created for the item."
     )
-    metahash: Optional[constr(min_length=40)] = Field(
+    metahash: Optional[str] = Field(
         None,
         description=(
             "A [Multiformats](https://multiformats.io) multihash or IPFS CIDv1 of the"
@@ -211,22 +221,25 @@ class IsccMetadata(BaseModel):
         example=(
             "f01551220b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
         ),
+        min_length=40,
     )
-    datahash: Optional[constr(min_length=40)] = Field(
+    datahash: Optional[str] = Field(
         None,
         description=(
             "A [Multihash](https://multiformats.io/multihash/) of the *digital content*"
             " (default blake3)."
         ),
         example="bdyqk6e2jxh27tingubae32rw3teutg6lexe23qisw7gjve6k4qpteyq",
+        min_length=40,
     )
-    tophash: Optional[constr(min_length=40)] = Field(
+    tophash: Optional[str] = Field(
         None,
         description=(
             "A [Multihash](https://multiformats.io/multihash/) of the concatenation"
             " (binding) of metahash and datahash."
         ),
         example="bdyqnosmb56tqudeibogyygmf2b25xs7wpg4zux4zcts2v6llqmnj4ja",
+        min_length=40,
     )
     thumbnail: Optional[AnyUrl] = Field(
         None,
@@ -266,26 +279,29 @@ class NftMetadata(BaseModel):
         ),
         example="http://purl.org/iscc/schema",
     )
-    iscc: Optional[AnyUrl] = Field(
+    iscc: Optional[str] = Field(
         None,
         description="The **ISCC-ID** of the digital content.",
         example="ISCC:MEAJU5AXCPOIOYFL",
+        regex="^ISCC:[A-Z2-7]{10,73}$",
     )
-    name: Optional[constr(max_length=128)] = Field(
+    name: Optional[str] = Field(
         None,
         description=(
             "The title or name of the intangible creation manifested by the identified"
             " *digital content*."
         ),
         example="Harry Potter and the Philosopher's Stone",
+        max_length=128,
     )
-    description: Optional[constr(max_length=4096)] = Field(
+    description: Optional[str] = Field(
         None,
         description="Description of the *digital content* identified by the **ISCC**.",
         example=(
             "A 2001 fantasy film directed by Chris Columbus and distributed by Warner"
             " Bros."
         ),
+        max_length=4096,
     )
     image: Optional[AnyUrl] = Field(
         None,
@@ -363,12 +379,13 @@ class NftPackage(BaseModel):
     nft_metadata: Optional[NftMetadata] = None
     nft_image: Optional[AnyUrl] = None
     nft_animation: Optional[AnyUrl] = None
-    iscc_code: Optional[
-        constr(regex=r"^ISCC:[A-Z2-7]{10,73}$", min_length=15, max_length=73)
-    ] = Field(
+    iscc_code: Optional[str] = Field(
         None,
         description="An **ISCC-CODE** in canonical representation.",
         example="ISCC:KACYPXW445FTYNJ3CYSXHAFJMA2HUWULUNRFE3BLHRSCXYH2M5AEGQY",
+        max_length=73,
+        min_length=15,
+        regex="^ISCC:[A-Z2-7]{10,73}$",
     )
 
 
@@ -377,26 +394,29 @@ class IsccBasicMetadata(BaseModel):
     Basic ISCC Metadata
     """
 
-    name: Optional[constr(max_length=128)] = Field(
+    name: Optional[str] = Field(
         None,
         description="The title or name of the creation manifested by digital content.",
         example="Harry Potter and the Philosopher's Stone",
+        max_length=128,
     )
-    description: Optional[constr(max_length=4096)] = Field(
+    description: Optional[str] = Field(
         None,
         description="Description of the digital content.",
         example=(
             "A 2001 fantasy film directed by Chris Columbus and distributed by Warner"
             " Bros."
         ),
+        max_length=4096,
     )
-    meta: Optional[constr(max_length=16384)] = Field(
+    meta: Optional[str] = Field(
         None,
         description=(
             "Subject, industry, or use-case specific metadata. (Encoded as JSON string"
             " or Data-URL)"
         ),
         example="data:application/json;charset=utf-8;base64,eyJleHRlbmRlZCI6Im1ldGFkYXRhIn0=",
+        max_length=16384,
     )
 
 
@@ -492,15 +512,19 @@ class Chain(Enum):
 
 
 class NftPostRequest(BaseModel):
-    media_id_image: constr(min_length=13, max_length=13) = Field(
+    media_id_image: str = Field(
         ...,
         description="The `media_id` of the image for the NFT",
         example="05VJUVTH3DCP6",
+        max_length=13,
+        min_length=13,
     )
-    media_id_animation: Optional[constr(min_length=13, max_length=13)] = Field(
+    media_id_animation: Optional[str] = Field(
         None,
         description="Optional `media_id` of an animation for the NFT",
         example="05VJUVTH3DCP6",
+        max_length=13,
+        min_length=13,
     )
     attributes: Optional[List[Dict[str, Any]]] = Field(
         None,
