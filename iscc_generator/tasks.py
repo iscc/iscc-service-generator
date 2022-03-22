@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
 from data_url import DataURL
-from loguru import logger as log
 import os
 import iscc_sdk as idk
 import iscc_core as ic
 from iscc_generator.download import download_media, download_url
 from iscc_generator.models import Nft
-from iscc_generator.schema import NftSchema, IsccMeta
+from iscc_generator.schema import NftSchema
 from iscc_generator.storage import media_obj_from_path
 from constance import config
 
@@ -21,7 +20,6 @@ def iscc_generator_task(pk: int):
     - stores new Media object
     - generates ISCC
     - stores result in IsccCode
-    - removes temp file
 
     :param int pk: Primary key of the IsccCode entry
     :return: The result of the ISCC processor
@@ -38,10 +36,11 @@ def iscc_generator_task(pk: int):
     elif iscc_obj.source_url:
         temp_fp = download_url(iscc_obj.source_url)
     else:
-        raise ValueError("No source_file and not source_url.")
+        raise ValueError("Need at least source_file or source_url.")
 
     # embed user provided metadata
     user_metadata = iscc_obj.get_metadata()
+    embed_fp = None
     if user_metadata.dict(exclude_unset=True):
         # ensure IsccMeta.meta is a data url for embedding
         if iscc_obj.meta and not iscc_obj.meta.startswith("data:"):
@@ -54,40 +53,31 @@ def iscc_generator_task(pk: int):
         else:
             user_metadata.meta = iscc_obj.meta
 
-        mt, mode_ = idk.mediatype_and_mode(temp_fp)
-        if mode_ == "image":
-            idk.image_meta_embed(temp_fp, user_metadata)
-        elif mode_ == "audio":
-            idk.audio_meta_embed(temp_fp, user_metadata)
-        else:
-            return dict(details=f"Unsupported mode {mode_} for mediatype {mt}")
+        embed_fp = idk.embed_metadata(temp_fp, user_metadata)
+        if embed_fp:
+            # remote store and set new media object
+            media_obj = media_obj_from_path(embed_fp, original=media_obj)
+            iscc_obj.source_file = media_obj
 
-        # remote store and set new media object
-        media_obj = media_obj_from_path(temp_fp, original=media_obj)
-        iscc_obj.source_file = media_obj
-        iscc_obj.save()
+    target_fp = embed_fp or temp_fp
 
     # generate iscc code
-    iscc_result_obj = idk.code_iscc(temp_fp)
-    # iscc_result_data = iscc_result_obj.dict(by_alias=True, exclude_none=True, exclude_unset=False)
-    # # Updgrade to customized
-    iscc_result = IsccMeta.parse_obj(iscc_result_obj.dict())
+    iscc_result_obj = idk.code_iscc(target_fp)
     # Set media_id
-    iscc_result.media_id = media_obj.flake
+    iscc_result_obj.media_id = media_obj.flake
 
     iscc_obj.iscc = iscc_result_obj.iscc
-    iscc_obj.result = iscc_result.dict(
+    iscc_obj.result = iscc_result_obj.dict(
         by_alias=True, exclude_none=True, exclude_unset=False
     )
     iscc_obj.save()
 
-    # local file cleanup
-    try:
-        os.remove(temp_fp)
-    except OSError:
-        log.warning(f"could not remove temp file {temp_fp}")
+    # cleanup files
+    os.remove(temp_fp)
+    if embed_fp:
+        os.remove(embed_fp)
 
-    return dict(result=iscc_result.iscc)
+    return dict(result=iscc_obj.iscc)
 
 
 def nft_generator_task(pk: int):

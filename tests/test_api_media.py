@@ -1,5 +1,8 @@
+import os
+
 import iscc_samples as samples
 import requests
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 def test_media_post_empty(live_server):
@@ -17,9 +20,11 @@ def test_media_post_image(live_server):
         assert "media_id" in response.json()
 
 
-def test_media_post_unsupported(live_server):
+def test_media_post_unsupported(live_server, tmp_path):
+    tf = tmp_path / "raw.bin"
+    tf.write_bytes(os.urandom(1024))
     url = live_server.url + "/api/media"
-    with samples.audios()[0].open("rb") as file:
+    with tf.open("rb") as file:
         response = requests.post(url, files={"source_file": file})
         assert response.status_code == 500
         assert "detail" in response.json()

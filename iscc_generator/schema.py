@@ -1,25 +1,9 @@
-from typing import Dict, Optional
-from pydantic import BaseModel, Field
+from typing import Dict
+from pydantic import BaseModel
 from ninja import ModelSchema, Schema
 from iscc_generator.models import Nft
-from iscc_sdk import IsccMeta as BaseIsccMeta
 from iscc_generator.codegen.spec import NftPackage as BaseNftPackage
-
-
-class IsccMeta(BaseIsccMeta):
-    """
-    Adds vendor_id field.
-
-    TODO: add to iscc-schema and remove this patch.
-    """
-
-    media_id: Optional[str] = Field(
-        None,
-        description="Vendor specific internal identifier for media file.",
-    )
-
-    class Config(BaseIsccMeta.Config):
-        orm_mode = True
+import iscc_schema as iss
 
 
 class AnyObject(BaseModel):
@@ -30,7 +14,7 @@ class AnyObject(BaseModel):
 
 class NftPackage(BaseNftPackage):
 
-    nft_metadata: IsccMeta
+    nft_metadata: iss.IsccMeta
 
 
 class NftSchema(ModelSchema):

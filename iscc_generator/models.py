@@ -1,4 +1,8 @@
+import os
+import shutil
+import tempfile
 import humanize
+from loguru import logger as log
 from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.db import models
 from django.forms import model_to_dict
@@ -8,6 +12,7 @@ from django.contrib import admin
 from iscc_generator.base import GeneratorBaseModel
 from iscc_generator.storage import get_storage_path
 import iscc_sdk as idk
+import iscc_schema as iss
 
 
 class IsccCode(GeneratorBaseModel):
@@ -121,13 +126,13 @@ class IsccCode(GeneratorBaseModel):
             return self.iscc
         return self.flake
 
-    def get_metadata(self) -> idk.IsccMeta:
+    def get_metadata(self) -> iss.IsccMeta:
         """Returns embedable metadata as IsccMeta object"""
         data = model_to_dict(
             self,
             fields=("name", "description", "meta", "creator", "license", "acquire"),
         )
-        return idk.IsccMeta.parse_obj(data)
+        return iss.IsccMeta.parse_obj(data)
 
     @admin.display(ordering="source_file__size", description="filesize")
     def source_file_size_human(self):
@@ -228,22 +233,24 @@ class Media(GeneratorBaseModel):
             new_upload = isinstance(self.source_file.file, TemporaryUploadedFile)
         except ValueError:
             pass
+        except Exception as e:
+            log.error(e)
         if new_upload:
             self.source_file.file.flush()
             self.name = self.source_file.file.name
             self.type = self.source_file.file.content_type
             self.size = self.source_file.size
             fp = self.source_file.file.temporary_file_path()
-            # TODO ipfs hashing may take long for large files - consider doing this in a worker
             self.cid = idk.ipfs_cidv1(fp)
-            mt, mode_ = idk.mediatype_and_mode(fp)
-            if mode_ == "image":
-                meta = idk.image_meta_extract(fp)
-                self.metadata = meta
-            elif mode_ == "audio":
-                meta = idk.audio_meta_extract(fp)
-                self.metadata = meta
-
+            mt, mode = idk.mediatype_and_mode(fp)
+            if mode == "audio":
+                # taglib can´t read metadata from a filepath of an opened TemporaryUploadedFile
+                tdir = tempfile.mkdtemp()
+                tfp = shutil.copy(fp, tdir)
+                self.metadata = idk.extract_metadata(tfp).dict(exclude_unset=False)
+                os.remove(tfp)
+            else:
+                self.metadata = idk.extract_metadata(fp).dict(exclude_unset=False)
         super().save(*args, **kwargs)
 
 

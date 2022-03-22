@@ -21,22 +21,25 @@ def clean_filename(filename: str) -> str:
 
 
 def media_obj_from_path(fp: str, original=None):
-    """Create a media object from a filepath."""
+    # type: (str, Optional["Media"]) -> "Media"
+    """
+    Create a media object from a filepath.
+
+    Create a Media object in the database, sets file properties and uploads file to storage backend.
+
+    :param str fp: Local filepath of media file
+    :param Optional[Media] original: Optional original Media object to be referenced.
+    """
     from iscc_generator.models import Media
 
     media_obj = Media.objects.create()
     filename = basename(fp)
     media_obj.name = filename
-    media_obj.type, mode_ = idk.mediatype_and_mode(fp)
+    media_obj.type, _ = idk.mediatype_and_mode(fp)
     media_obj.size = getsize(fp)
-    if mode_ == "image":
-        media_obj.metadata = idk.image_meta_extract(fp)
-    elif mode_ == "audio":
-        media_obj.metadata = idk.audio_meta_extract(fp)
-
+    media_obj.metadata = idk.extract_metadata(fp).dict(exclude_unset=False)
     media_obj.cid = idk.ipfs_cidv1(fp)
     media_obj.original = original
-
     storage_name = f"{media_obj.flake}/{filename}"
     media_obj.source_file.name = storage_name
     storage: Storage = default_storage

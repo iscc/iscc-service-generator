@@ -2,6 +2,7 @@
 import base64
 import io
 import json
+import os
 from datetime import datetime
 from os.path import join, basename
 from tempfile import TemporaryDirectory
@@ -14,9 +15,9 @@ from django_q.models import Task, OrmQ
 from iscc_generator.schema import NftPackage, QueuedTasks
 from ninja import Router, File, Form, Schema, UploadedFile
 from iscc_generator.base import get_or_404
-from iscc_generator.codegen.spec import IsccCodePostRequest, IsccMetadata
+from iscc_generator.codegen.spec import IsccCodePostRequest
 from iscc_generator.models import IsccCode, Media, Nft
-from iscc_generator.schema import AnyObject, IsccMeta
+from iscc_generator.schema import AnyObject
 from iscc_generator.storage import media_obj_from_path
 from iscc_generator.tasks import iscc_generator_task, nft_generator_task
 from iscc_generator.codegen.spec import (
@@ -28,7 +29,7 @@ from iscc_generator.codegen.spec import (
 from constance import config
 import iscc_sdk as idk
 import iscc_core as ic
-
+import iscc_schema as iss
 
 router = Router()
 
@@ -49,7 +50,7 @@ class TaskResponse(Schema):
 
 @router.post(
     "/iscc_code",
-    response={201: IsccMeta, 202: TaskResponse, 400: Message, 500: Message},
+    response={201: iss.IsccMeta, 202: TaskResponse, 400: Message, 500: Message},
     summary="create iscc",
     tags=["iscc"],
     operation_id="iscc-code-create",
@@ -122,7 +123,7 @@ async def iscc_code_create(
 
 @router.get(
     "/iscc_code/{iscc}",
-    response={200: IsccMeta, 404: Message},
+    response={200: iss.IsccMeta, 404: Message},
     exclude_defaults=False,
     exclude_unset=True,
     summary="get iscc",
@@ -235,7 +236,7 @@ def async_media_metadata_embed(media_obj: Media, meta: MediaEmbeddedMetadata):
 
     # TODO - we need to download/reupload the file - move this to a worker task
     """
-    meta = IsccMeta.parse_obj(meta.dict())
+    meta = iss.IsccMeta.parse_obj(meta.dict())
     # Copy file to local storage
     filename = basename(media_obj.source_file.name)
     with TemporaryDirectory() as tempdir:
@@ -247,9 +248,11 @@ def async_media_metadata_embed(media_obj: Media, meta: MediaEmbeddedMetadata):
                     tmpfile.write(data)
                     data = infile.read(1024 * 1024)
         # Embed metadata
-        idk.image_meta_embed(tmpfile_path, meta=meta)
-        # Create new media object
-        new_media_object = media_obj_from_path(tmpfile_path, original=media_obj)
+        new_file = idk.embed_metadata(tmpfile_path, meta=meta)
+
+    # Create new media object
+    new_media_object = media_obj_from_path(new_file, original=media_obj)
+    os.remove(new_file)
 
     return new_media_object
 

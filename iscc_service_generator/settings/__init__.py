@@ -79,7 +79,7 @@ class GeneralSettings(BaseSettings):
 
     # Upload file pre-processing does not work with InMemoryUploadedFile!!!
     FILE_UPLOAD_HANDLERS: List[str] = [
-        "iscc_generator.uploadhandler.IsccUploadHandler",
+        "iscc_generator.uploadhandler.IsccQuotaUploadHandler",
         "django.core.files.uploadhandler.TemporaryFileUploadHandler",
     ]
 

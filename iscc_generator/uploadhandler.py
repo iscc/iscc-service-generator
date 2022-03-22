@@ -5,7 +5,7 @@ from ninja.errors import HttpError
 import humanize
 
 
-class IsccUploadHandler(FileUploadHandler):
+class IsccQuotaUploadHandler(FileUploadHandler):
     """
     This upload handler terminates the connection if more than FILE_SIZE_LIMIT is uploaded.
     """
