@@ -357,7 +357,7 @@ class NftMetadata(BaseModel):
         description="URL to which an ISCC resolver should redirect the ISCC-ID.",
         example="https://example.com/redirect-here-for-iscc-id",
     )
-    verifications: Optional[List[AnyUrl]] = Field(
+    verifications: Optional[List[Dict[str, Any]]] = Field(
         None,
         description=(
             "A list of self-verifications. Self-verifications are public URLs under the"
@@ -366,7 +366,7 @@ class NftMetadata(BaseModel):
             " signees wallet address in the format of"
             " `verify:<multihash-of-wallet-address>:verify`."
         ),
-        example=["https://twitter.com/titusz/status/1490104312051257347"],
+        example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
     )
 
 
@@ -571,7 +571,7 @@ class NftPostRequest(BaseModel):
             " from a declartion that includes the IPFS-hash of this metadata instance."
         ),
     )
-    verifications: Optional[List[AnyUrl]] = Field(
+    verifications: Optional[List[Dict[str, Any]]] = Field(
         None,
         description=(
             "A list of self-verifications. Self-verifications are public URLs under the"
@@ -580,6 +580,7 @@ class NftPostRequest(BaseModel):
             " signees wallet address in the format of"
             " `verify:<multihash-of-wallet-address>:verify`."
         ),
+        example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
     )
 
 
