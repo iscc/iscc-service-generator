@@ -10,7 +10,7 @@ keywords=["iscc", "microservice", "rest-api", "identifier", "media", "hash", "si
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
-iscc-sdk = "^0.3"
+iscc-sdk = "^0.4"
 Django = "^4.0"
 django-ninja = "^0.16"
 django-admin-interface = "^0.18"
@@ -39,6 +39,7 @@ pytest = "^6.2"
 pytest-django = "^4.5"
 iscc-samples = "^0.4.0"
 datamodel-code-generator = "^0.11.20"
+pytest-asyncio = "^0.18.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
