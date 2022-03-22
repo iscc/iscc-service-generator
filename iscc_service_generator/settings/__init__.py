@@ -3,6 +3,7 @@ from typing import Dict, List
 from pydantic import BaseSettings, Field
 from pydantic.fields import Undefined
 from .pydjantic import BaseDBConfig, to_django
+from typing import Optional
 
 
 CUR_DIR = Path(__file__).resolve().parent
@@ -81,6 +82,8 @@ class GeneralSettings(BaseSettings):
         "iscc_generator.uploadhandler.IsccUploadHandler",
         "django.core.files.uploadhandler.TemporaryFileUploadHandler",
     ]
+
+    DEFAULT_FILE_STORAGE: str = "django.core.files.storage.FileSystemStorage"
 
 
 class I18NSettings(BaseSettings):
@@ -202,6 +205,11 @@ class IsccGeneratorSettings(BaseSettings):
     UPLOAD_SIZE_LIMIT: int = 100
 
 
+class S3Settings(BaseSettings):
+    AWS_STORAGE_BUCKET_NAME: Optional[str] = None
+    AWS_S3_ENDPOINT_URL: Optional[str] = None
+
+
 class ProjectSettings(
     GeneralSettings,
     I18NSettings,
@@ -210,6 +218,7 @@ class ProjectSettings(
     QClusterSettings,
     ConstanceSettings,
     IsccGeneratorSettings,
+    S3Settings,
 ):
     pass
 

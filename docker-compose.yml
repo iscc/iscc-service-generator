@@ -3,6 +3,22 @@ version: "3.8"
 volumes:
   db:
 
+x-default-app: &default-app
+  init: true
+  depends_on:
+    - db
+    - minio
+  volumes:
+    - .:/app
+
+x-default-app-env: &default-app-env
+  DATABASE_URL: postgres://iscc:generator@db/iscc
+  DEFAULT_FILE_STORAGE: storages.backends.s3boto3.S3Boto3Storage
+  AWS_ACCESS_KEY_ID: iscc-generator
+  AWS_SECRET_ACCESS_KEY: iscc-generator
+  AWS_STORAGE_BUCKET_NAME: iscc-generator-service
+  AWS_S3_ENDPOINT_URL: http://minio:9000/
+
 services:
   db:
     image: postgres:14
@@ -14,30 +30,33 @@ services:
       - db:/var/lib/postgresql/data
 
   backend:
+    <<: *default-app
     build:
-      context: .
       target: dev-runtime-backend
-    init: true
-    depends_on:
-      - db
     environment:
-      DATABASE_URL: postgres://iscc:generator@db/iscc
+      <<: *default-app-env
       AUTO_MIGRATE_AND_INSTALL: "true"
     ports:
       - 127.0.0.1:8000:8000
-    volumes:
-      - .:/app
 
   worker:
+    <<: *default-app
     build:
-      context: .
       target: dev-runtime-worker
-    init: true
     depends_on:
       - db
+      - minio
       - backend
     environment:
-      DATABASE_URL: postgres://iscc:generator@db/iscc
+      <<: *default-app-env
       WAIT_FOR_MIGRATIONS: "true"
-    volumes:
-      - .:/app
+
+  minio:
+    image: bitnami/minio:2022
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=iscc-generator
+      - MINIO_ROOT_PASSWORD=iscc-generator
+      - MINIO_DEFAULT_BUCKETS=iscc-generator-service
