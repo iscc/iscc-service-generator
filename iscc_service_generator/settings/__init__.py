@@ -25,6 +25,7 @@ class GeneralSettings(BaseSettings):
     ]
     CSRF_TRUSTED_ORIGINS: List[str] = []
     X_FRAME_OPTIONS: str = "SAMEORIGIN"
+    CORS_ALLOW_ALL_ORIGINS: bool = True
     SILENCED_SYSTEM_CHECKS: List[str] = ["security.W019"]
     DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
     SECRET_KEY: str = Field(default=Undefined, env="DJANGO_SECRET_KEY")
@@ -46,6 +47,7 @@ class GeneralSettings(BaseSettings):
         "django.contrib.sessions",
         "django.contrib.messages",
         "django.contrib.staticfiles",
+        "corsheaders",
         "django_json_widget",
         "django_object_actions",
         "iscc_generator",
@@ -55,6 +57,7 @@ class GeneralSettings(BaseSettings):
     MIDDLEWARE: List[str] = [
         "django.middleware.security.SecurityMiddleware",
         "django.contrib.sessions.middleware.SessionMiddleware",
+        "corsheaders.middleware.CorsMiddleware",
         "django.middleware.common.CommonMiddleware",
         "django.middleware.csrf.CsrfViewMiddleware",
         "django.contrib.auth.middleware.AuthenticationMiddleware",

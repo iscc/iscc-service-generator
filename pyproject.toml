@@ -29,6 +29,7 @@ requests = "^2.27"
 pathvalidate = "^2.5"
 translitcodec = "^0.7"
 django-storages = {extras = ["boto3"], version = "^1.12.3"}
+django-cors-headers = "^3.11.0"
 
 
 [tool.poetry.dev-dependencies]
