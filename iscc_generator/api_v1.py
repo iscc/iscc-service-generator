@@ -306,13 +306,26 @@ async def nft_post(request, item: NftPostRequest):
     task_result = await async_wait_for_task(task_id)
     if task_result:
         await sync_to_async(nft_obj.refresh_from_db)()
-        return 201, nft_obj.result
+        result = await filter_nft_metadata(nft_obj.result)
+        return 201, result
     # return task-id instead
     else:
         task = await async_find_task(task_id)
         if not task:
             return 503, Message(detail="Task not found")
         return 202, task
+
+
+@sync_to_async
+def filter_nft_metadata(meta: dict) -> dict:
+    """Filter `nft_metadata` fields according to configuration"""
+    exclude = config.NFT_EXCLUDE_FIELDS
+    if not exclude:
+        return meta
+    exclude = set(field.strip() for field in exclude.split(","))
+    obj = iss.IsccMeta.parse_obj(meta["nft_metadata"])
+    meta["nft_metadata"] = obj.dict(exclude=exclude)
+    return meta
 
 
 @router.get(
