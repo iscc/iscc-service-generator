@@ -149,6 +149,7 @@ class ConstanceSettings(BaseSettings):
     CONSTANCE_CONFIG: OrderedDict = OrderedDictObject(
         [
             ("DOMAIN", ("https://example.com", "Domain where this service is hosted", "url_field")),
+            ("IPFS_WRAP", (False, "Wrap file with dicectory for IPFS URIs")),
             ("NFT_EXCLUDE_FIELDS", ("", "Comma separated list of fields to exclude from results")),
             ("DOWNLOAD_TIMEOUT", (5, "Timeout in seconds for media downloads")),
             ("DOWNLOAD_VERIFY_TLS", (True, "Verify TLS for media downloads")),
@@ -158,7 +159,7 @@ class ConstanceSettings(BaseSettings):
     )
     CONSTANCE_CONFIG_FIELDSETS: OrderedDict = OrderedDictObject([
         ("General", ("DOMAIN",)),
-        ("API Settings", ("NFT_EXCLUDE_FIELDS",)),
+        ("API Settings", ("IPFS_WRAP", "NFT_EXCLUDE_FIELDS",)),
         ("Asset Downloads", ("DOWNLOAD_TIMEOUT", "DOWNLOAD_VERIFY_TLS", "DOWNLOAD_SIZE_LIMIT")),
         ("Tasks Processing", ("PROCESSING_TIMEOUT",)),
     ])
