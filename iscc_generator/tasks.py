@@ -127,11 +127,23 @@ def nft_generator_task(pk: int):
         iscc_meta["iscc"] = iscc_id["iscc"]
 
     # Set NFT IPFS hashes
-    iscc_meta["image"] = f"ipfs://{nft_obj.media_id_image.cid}"
-    if nft_obj.media_id_animation:
-        iscc_meta["animation_url"] = f"ipfs://{nft_obj.media_id_animation.cid}"
+    if config.IPFS_WRAP:
+        # we need to download assets and create a wrapped ipfs cid
+        temp_image = download_media(nft_obj.media_id_image)
+        cid_w = idk.ipfs_cidv1(temp_image, wrap=True)
+        iscc_meta["image"] = f"ipfs://{cid_w}"
+        os.remove(temp_image)
+        if nft_obj.media_id_animation:
+            temp_animation = download_media(nft_obj.media_id_animation)
+            cid_w = idk.ipfs_cidv1(temp_animation, wrap=True)
+            iscc_meta["animation_url"] = f"ipfs://{cid_w}"
+            os.remove(temp_animation)
+    else:
+        iscc_meta["image"] = f"ipfs://{nft_obj.media_id_image.cid}"
+        if nft_obj.media_id_animation:
+            iscc_meta["animation_url"] = f"ipfs://{nft_obj.media_id_animation.cid}"
 
-    # Wrap in NFTPackage
+    # Wrap metadata in NFTPackage
     np = dict(
         nft_id=nft_obj.flake,
         iscc_code=iscc_code,
