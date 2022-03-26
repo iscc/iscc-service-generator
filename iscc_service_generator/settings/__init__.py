@@ -1,5 +1,6 @@
 from pathlib import Path
-from typing import Dict, List
+from collections import OrderedDict as OrderedDictObject
+from typing import Dict, List, OrderedDict
 from pydantic import BaseSettings, Field
 from pydantic.fields import Undefined
 from .pydjantic import BaseDBConfig, to_django
@@ -143,65 +144,28 @@ class QClusterSettings(BaseSettings):
 
 
 class ConstanceSettings(BaseSettings):
+    # fmt: off
     CONSTANCE_BACKEND: str = "constance.backends.database.DatabaseBackend"
-    CONSTANCE_CONFIG: Dict = {
-        "DOMAIN": (
-            "https://example.com",
-            "The domain where this service is hosted",
-            "url_field",
-        ),
-        "DOWNLOAD_TIMEOUT": (5, "Timeout in seconds for media downloads"),
-        "DOWNLOAD_VERIFY_TLS": (True, "Verify TLS for media downloads"),
-        "DOWNLOAD_SIZE_LIMIT": (10, "Maximum size for media file downloads in MB"),
-        "PREVIEW_IMAGE_SIZE": (
-            128,
-            "Size of generated preview images in number of pixels (not implemented yet)",
-        ),
-        "ENABLE_GRANULAR_FEATURES": (
-            False,
-            "Calculate granular features for media assets",
-        ),
-        "PROCESSING_TIMEOUT": (
-            5,
-            "Number of seconds to wait before returning a task instead of the actual result",
-        ),
-        "ENABLE_LIST_ENDPOINTS": (
-            False,
-            "Enables REST Api endpoints that can list objects "
-            "(do not enable on public instances without authentication) (not implemented yet)",
-        ),
-        "RESULT_HOOK_URL": (
-            "none",
-            "An URL to which the background processing results should be deliverd "
-            "(must be a an endpoint accepting POST requests with a json body) (not implemented yet)",
-            "url_field",
-        ),
-        "RATE_LIMIT": (
-            "16/m",
-            "IP based rate limit for API calls (not implemented yet)",
-            "rate_limit_field",
-        ),
-    }
+    CONSTANCE_CONFIG: OrderedDict = OrderedDictObject(
+        [
+            ("DOMAIN", ("https://example.com", "Domain where this service is hosted", "url_field")),
+            ("NFT_EXCLUDE_FIELDS", ("", "Comma separated list of fields to exclude from results")),
+            ("DOWNLOAD_TIMEOUT", (5, "Timeout in seconds for media downloads")),
+            ("DOWNLOAD_VERIFY_TLS", (True, "Verify TLS for media downloads")),
+            ("DOWNLOAD_SIZE_LIMIT", (100, "Maximum size for media file downloads in MB")),
+            ("PROCESSING_TIMEOUT", (10, "Seconds to wait before returning an async task")),
+        ]
+    )
+    CONSTANCE_CONFIG_FIELDSETS: OrderedDict = OrderedDictObject([
+        ("General", ("DOMAIN",)),
+        ("API Settings", ("NFT_EXCLUDE_FIELDS",)),
+        ("Asset Downloads", ("DOWNLOAD_TIMEOUT", "DOWNLOAD_VERIFY_TLS", "DOWNLOAD_SIZE_LIMIT")),
+        ("Tasks Processing", ("PROCESSING_TIMEOUT",)),
+    ])
     CONSTANCE_ADDITIONAL_FIELDS: Dict = {
         "url_field": ["django.forms.fields.CharField"],
-        "rate_limit_field": [
-            "django.forms.fields.ChoiceField",
-            {
-                "widget": "django.forms.Select",
-                "choices": (
-                    ("4/m", "4 requests per minute"),
-                    ("8/m", "8 requests per minute"),
-                    ("16/m", "16 requests per minute"),
-                    ("32/m", "32 requests per minute"),
-                    ("64/m", "64 requests per minute"),
-                    ("128/m", "128 requests per minute"),
-                    ("254/m", "254 requests per minute"),
-                    ("512/m", "512 requests per minute"),
-                    ("1024/m", "1024 requests per minute"),
-                ),
-            },
-        ],
     }
+    # fmt: on
 
 
 class IsccGeneratorSettings(BaseSettings):
