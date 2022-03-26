@@ -118,13 +118,21 @@ def nft_generator_task(pk: int):
     # Set ISCC-ID if chain and wallet are provided
     chain_map = dict(PRIVATE=0, BITCOIN=1, ETHEREUM=2, POLYGON=3)
     iscc_code = iscc_meta["iscc"]
+    iscc_id = None
     if nft_obj.chain and nft_obj.wallet:
         iscc_id = ic.gen_iscc_id(
             iscc_code=iscc_meta["iscc"],
             chain_id=chain_map[nft_obj.chain],
             wallet=nft_obj.wallet,
-        )
-        iscc_meta["iscc"] = iscc_id["iscc"]
+        )["iscc"]
+        iscc_meta["iscc_id"] = iscc_id
+
+    # URL template substitution
+    substitution_fields = ["external_url", "redirect"]
+    if iscc_id:
+        for field in substitution_fields:
+            if field in iscc_meta:
+                iscc_meta[field] = iscc_meta[field].replace("(iscc-id)", iscc_id)
 
     # Set NFT IPFS hashes
     if config.IPFS_WRAP:
