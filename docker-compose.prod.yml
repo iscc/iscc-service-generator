@@ -21,7 +21,7 @@ services:
   backend:
     build:
       context: .
-      target: prod-runtime-backend
+      target: prod-runtime
     restart: always
     init: true
     depends_on:
@@ -47,7 +47,7 @@ services:
   worker:
     build:
       context: .
-      target: prod-runtime-worker
+      target: prod-runtime
     restart: always
     init: true
     depends_on:
@@ -61,3 +61,4 @@ services:
       - ./.scratch:/app/.scratch
     networks:
       - iscc-service-generator
+    command: worker

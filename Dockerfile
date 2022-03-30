@@ -15,9 +15,11 @@ ENV POETRY_NO_INTERACTION=1 \
 
 # Install taglib
 RUN apt-get update && \
-  apt-get install -y libtag1-dev
+  apt-get install --no-install-recommends -y libtag1-dev && \
+  rm -rf /var/lib/apt/lists
 
 # Install Poetry and create venv
+# hadolint ignore=DL3013
 RUN pip install -U pip wheel setuptools && \
   pip install "poetry==$POETRY_VERSION"
 
@@ -31,34 +33,20 @@ COPY pyproject.toml poetry.lock /app/
 
 FROM builder AS dev-runtime
 
+RUN apt-get update && apt-get install -y --no-install-recommends inotify-tools pslist && rm -rf /var/lib/apt/lists
+
 RUN poetry install
 
+# hadolint ignore=DL3059
 RUN poetry run python -c "import iscc_sdk; iscc_sdk.tools.install()"
 
 COPY docker/entrypoint-dev.sh /app/docker/
+COPY docker/qcluster-autoreload.sh /app/docker/
 ENTRYPOINT [ "docker/entrypoint-dev.sh" ]
-
-#
-# dev-runtime-backend
-#
-
-FROM dev-runtime AS dev-runtime-backend
 
 EXPOSE 8000/tcp
 
 CMD ["poetry", "run", "uvicorn", "iscc_service_generator.asgi:application", "--host=0.0.0.0", "--reload"]
-
-#
-# dev-runtime-worker
-#
-
-FROM dev-runtime AS dev-runtime-worker
-
-RUN apt-get update && apt-get install -y inotify-tools pslist && rm -rf /var/lib/apt/lists
-
-COPY docker/qcluster-autoreload.sh /app/docker/
-
-CMD ["docker/qcluster-autoreload.sh"]
 
 #
 # prod-build
@@ -66,6 +54,7 @@ CMD ["docker/qcluster-autoreload.sh"]
 
 FROM builder AS prod-build
 
+# hadolint ignore=SC1091
 RUN python -m venv /venv && . /venv/bin/activate && poetry install --no-dev --no-root
 
 RUN /venv/bin/python -c "import iscc_sdk; iscc_sdk.tools.install()"
@@ -78,6 +67,8 @@ COPY . /app/
 
 FROM python:3.9-slim AS prod-runtime
 
+LABEL org.opencontainers.image.source=https://github.com/iscc/iscc-service-generator
+
 RUN apt-get update && apt-get install --no-install-recommends -y libmagic1 libpq5 libtag1v5-vanilla && rm -rf /var/lib/apt/lists
 
 # Disable stdout/stderr buggering, can cause issues with Docker logs
@@ -85,6 +76,8 @@ ENV PYTHONUNBUFFERED=1
 
 ENV PATH="/venv/bin:$PATH"
 ENV VIRTUAL_ENV=/venv
+
+COPY docker/worker.sh /usr/local/bin/worker
 
 COPY --from=prod-build /root/.local/share/iscc-sdk /root/.local/share/iscc-sdk
 COPY --from=prod-build /root/.ipfs /root/.ipfs
@@ -95,20 +88,6 @@ WORKDIR /app
 
 ENTRYPOINT [ "docker/entrypoint-prod.sh" ]
 
-#
-# prod-runtime-backend
-#
-
-FROM prod-runtime AS prod-runtime-backend
-
 EXPOSE 8000/tcp
 
 CMD ["uvicorn", "iscc_service_generator.asgi:application", "--host=0.0.0.0"]
-
-#
-# prod-runtime-worker
-#
-
-FROM prod-runtime AS prod-runtime-worker
-
-CMD ["python", "manage.py", "qcluster"]

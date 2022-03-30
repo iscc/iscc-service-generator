@@ -1,0 +1,2 @@
+ignored:
+  - DL3008  # We don't want to pin apt package versions
