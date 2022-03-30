@@ -63,6 +63,8 @@ COPY . /app/
 
 FROM python:3.9-slim AS prod-runtime
 
+LABEL org.opencontainers.image.source=https://github.com/iscc/iscc-service-generator
+
 RUN apt-get update && apt-get install --no-install-recommends -y libmagic1 libpq5 libtag1v5-vanilla && rm -rf /var/lib/apt/lists
 
 # Disable stdout/stderr buggering, can cause issues with Docker logs

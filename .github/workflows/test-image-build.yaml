@@ -1,0 +1,18 @@
+name: Test Docker image build
+on:
+  pull_request:
+jobs:
+  push_to_registry:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Build container image
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: |
+            ghcr.io/iscc/iscc-service-generator:${{ github.sha }}
+      - name: Test container image
+        run: docker run --rm ghcr.io/iscc/iscc-service-generator:${{ github.sha }} python manage.py version
