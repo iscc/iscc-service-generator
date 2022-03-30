@@ -32,7 +32,7 @@ services:
   backend:
     <<: *default-app
     build:
-      target: dev-runtime-backend
+      target: dev-runtime
     environment:
       <<: *default-app-env
       AUTO_MIGRATE_AND_INSTALL: "true"
@@ -42,7 +42,7 @@ services:
   worker:
     <<: *default-app
     build:
-      target: dev-runtime-worker
+      target: dev-runtime
     depends_on:
       - db
       - minio
@@ -50,6 +50,7 @@ services:
     environment:
       <<: *default-app-env
       WAIT_FOR_MIGRATIONS: "true"
+    command: docker/qcluster-autoreload.sh
 
   minio:
     image: bitnami/minio:2022
