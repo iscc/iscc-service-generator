@@ -15,9 +15,11 @@ ENV POETRY_NO_INTERACTION=1 \
 
 # Install taglib
 RUN apt-get update && \
-  apt-get install -y libtag1-dev
+  apt-get install --no-install-recommends -y libtag1-dev && \
+  rm -rf /var/lib/apt/lists
 
 # Install Poetry and create venv
+# hadolint ignore=DL3013
 RUN pip install -U pip wheel setuptools && \
   pip install "poetry==$POETRY_VERSION"
 
@@ -31,10 +33,11 @@ COPY pyproject.toml poetry.lock /app/
 
 FROM builder AS dev-runtime
 
-RUN apt-get update && apt-get install -y inotify-tools pslist && rm -rf /var/lib/apt/lists
+RUN apt-get update && apt-get install -y --no-install-recommends inotify-tools pslist && rm -rf /var/lib/apt/lists
 
 RUN poetry install
 
+# hadolint ignore=DL3059
 RUN poetry run python -c "import iscc_sdk; iscc_sdk.tools.install()"
 
 COPY docker/entrypoint-dev.sh /app/docker/
@@ -51,6 +54,7 @@ CMD ["poetry", "run", "uvicorn", "iscc_service_generator.asgi:application", "--h
 
 FROM builder AS prod-build
 
+# hadolint ignore=SC1091
 RUN python -m venv /venv && . /venv/bin/activate && poetry install --no-dev --no-root
 
 RUN /venv/bin/python -c "import iscc_sdk; iscc_sdk.tools.install()"
