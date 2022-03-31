@@ -6,6 +6,7 @@ site
 __pycache__
 .coverage
 coverage.xml
+.env
 
 # direnv
 .envrc
