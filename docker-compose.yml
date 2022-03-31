@@ -12,6 +12,8 @@ x-default-app: &default-app
     - .:/app
 
 x-default-app-env: &default-app-env
+  DEBUG: "true"
+  DJANGO_SECRET_KEY: "set-to-secure-random-secret-in-production"
   DATABASE_URL: postgres://iscc:generator@db/iscc
   DEFAULT_FILE_STORAGE: storages.backends.s3boto3.S3Boto3Storage
   AWS_ACCESS_KEY_ID: iscc-generator

@@ -18,4 +18,4 @@ jobs:
           cache-from: type=gha,scope=app
           cache-to: type=gha,scope=app,mode=max
       - name: Test container image
-        run: docker run --rm ghcr.io/iscc/iscc-service-generator:${{ github.sha }} python manage.py version
+        run: docker run --rm -e DJANGO_SECRET_KEY=foobar ghcr.io/iscc/iscc-service-generator:${{ github.sha }} python manage.py version
