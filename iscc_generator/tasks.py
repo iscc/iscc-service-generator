@@ -35,6 +35,7 @@ def iscc_generator_task(pk: int):
         temp_fp = download_media(media_obj)
     elif iscc_obj.source_url:
         temp_fp = download_url(iscc_obj.source_url)
+        media_obj = media_obj_from_path(temp_fp)
     else:
         raise ValueError("Need at least source_file or source_url.")
 
