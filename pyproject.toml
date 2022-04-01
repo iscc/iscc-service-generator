@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "iscc-service-generator"
-version = "0.3.0"
+version = "0.3.1"
 description = "ISCC Generator Web Service APP"
 authors = ["Titusz <tp@iscc.foundation>"]
 license = "Apache-2.0"
