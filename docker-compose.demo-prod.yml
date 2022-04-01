@@ -28,6 +28,7 @@ services:
     ports:
       - 127.0.0.1:8000:8000
     environment:
+      DJANGO_SECRET_KEY: "foobar"
       ALLOWED_HOSTS: "[\"localhost\"]"
       CSRF_TRUSTED_ORIGINS: "[\"http://localhost:8000\"]"
       AUTO_MIGRATE: "true"
@@ -42,6 +43,7 @@ services:
     depends_on:
       - db
     environment:
+      DJANGO_SECRET_KEY: "foobar"
       ALLOWED_HOSTS: "[\"localhost\"]"
       CSRF_TRUSTED_ORIGINS: "[\"http://localhost:8000\"]"
       DATABASE_URL: postgres://iscc:generator@db/iscc

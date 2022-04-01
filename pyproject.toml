@@ -30,6 +30,7 @@ pathvalidate = "^2.5"
 translitcodec = "^0.7"
 django-storages = {extras = ["boto3"], version = "^1.12.3"}
 django-cors-headers = "^3.11.0"
+ASGIMiddlewareStaticFile = "^0.3.2"
 
 
 [tool.poetry.dev-dependencies]
