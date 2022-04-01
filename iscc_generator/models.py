@@ -216,7 +216,7 @@ class Media(GeneratorBaseModel):
     )
 
     def __str__(self):
-        return self.name
+        return self.name or ""
 
     def filesize(self):
         if self.size:
