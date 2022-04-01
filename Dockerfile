@@ -61,6 +61,9 @@ RUN /venv/bin/python -c "import iscc_sdk; iscc_sdk.tools.install()"
 
 COPY . /app/
 
+# hadolint ignore=DL3059
+RUN DJANGO_SECRET_KEY=foobar /venv/bin/python manage.py collectstatic --no-input
+
 #
 # prod-runtime
 #
