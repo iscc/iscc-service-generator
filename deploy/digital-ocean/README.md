@@ -104,7 +104,7 @@ Make sure "Restrict File Listing" is enabled.
 Create an access key for Spaces in https://cloud.digitalocean.com/account/api/tokens and note down
 both the key and the secret key.
 
-## 5. Create backend and worker droplets
+## 7. Create backend and worker droplets
 
 https://cloud.digitalocean.com/droplets/new?size=s-1vcpu-1gb&region=ams3&distro=debian&distroImage=debian-11-x64
 
@@ -114,7 +114,7 @@ Configure the authentication as required, SSH keys are recommended.
 
 Enable Monitoring and User data in the additional options.
 
-### 5.1. User data for backend droplets
+### 7.1. User data for backend droplets
 
 Paste the contents of [userdata-backend.sh](userdata-backend.sh) into the user data text field.
 Update the variables according to the credentials you noted down earlier.
@@ -126,7 +126,7 @@ Add the tag `iscc-service-generator-backend`.
 
 Create the droplet(s) and continue with creating worker droplets.
 
-### 5.2. User data for worker droplets
+### 7.2. User data for worker droplets
 
 Paste the contents of [userdata-worker.sh](userdata-worker.sh) into the user data text field. Update
 the variables according to the credentials you noted down earlier.
@@ -137,7 +137,7 @@ Add the tag `iscc-service-generator-worker`.
 
 Create the droplet(s) and continue.
 
-## 6. Finalize database configuration
+## 8. Finalize database configuration
 
 https://cloud.digitalocean.com/databases/db-iscc-service-generator
 
@@ -148,7 +148,7 @@ only allow droplets tagged with those tags to access the database.
 This will automatically affect all new droplets created with those tags, no need to update the
 database again.
 
-## 7. Finalize Load Balancer configuration
+## 9. Finalize Load Balancer configuration
 
 https://cloud.digitalocean.com/networking/load_balancers
 
@@ -163,7 +163,7 @@ Balancer again.
 Open the "Settings" tab and edit the Health checks configuration. Change "Path" from "/" to
 "/api/docs" and click on "Save".
 
-## 8. Finalize Firewall configuration
+## 10. Finalize Firewall configuration
 
 https://cloud.digitalocean.com/networking/firewalls
 
@@ -179,7 +179,7 @@ port on the droplets.
 This will automatically affect all new droplets created with those tags, no need to update the
 Firewall again.
 
-## 9. Update DNS
+## 11. Update DNS
 
 https://cloud.digitalocean.com/networking/domains
 
@@ -187,7 +187,7 @@ Open the domain you intend to run the service with. Add a new A record on the su
 run the service under and select the Load Balancer you created earlier (`lb-iscc-service-generator`)
 in "will redirect to" and click on "Create Record".
 
-## 10. Create initial login data
+## 12. Create initial login data
 
 Open a shell on one of the backend droplets (either via SSH or the web console). Navigate to
 `/iscc-service-generator` and run the following command to create an admin user:
