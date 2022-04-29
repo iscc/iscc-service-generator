@@ -168,6 +168,7 @@ class ConstanceSettings(BaseSettings):
 
 class IsccGeneratorSettings(BaseSettings):
     UPLOAD_SIZE_LIMIT: int = 100
+    ISCC_ID_FORECAST_URL: Optional[str] = Field(None, description="API URL for ISCC-ID forecasts")
 
 
 class S3Settings(BaseSettings):
