@@ -52,10 +52,11 @@ DJANGO_SETTINGS_MODULE = "tests.settings"
 asyncio_mode = "auto"
 
 [tool.poe.tasks]
+codegen = { cmd = "poetry run python -m iscc_generator.codegen.build", help = "Generate code from openapi schema"}
 format = { cmd = "poetry run black .", help = "Code style formating with black" }
 lf = { cmd = "poetry run python -m dev.lf", help = "Convert line endings to lf"}
 test = { cmd = "poetry run pytest", help = "Run testes"}
-all = ["format", "lf", "test"]
+all = ["codegen", "format", "lf", "test"]
 install = { cmd = "python -m dev.install", help = "Install app with secure superuser password"}
 demo = { cmd = "python -m dev.demo", help = "Install app for development with demo/demo user"}
 
