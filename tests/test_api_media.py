@@ -43,3 +43,31 @@ def test_media_get_image(live_server):
         media_id = resp.json().get("media_id")
     resp = requests.get(url + "/" + media_id)
     assert resp.headers["content-type"] == "image/jpeg"
+
+
+def test_media_metadata(live_server):
+    # upload asset
+    url = live_server.url + "/api/media"
+    with samples.images("jpg")[0].open("rb") as file:
+        resp = requests.post(url, files={"source_file": file})
+        media_id = resp.json().get("media_id")
+    # get pre-existing metadata
+    meta_endpoint = url + f"/metadata/{media_id}"
+    resp = requests.get(meta_endpoint)
+    assert resp.json() == {"creator": "Some Cat Lover", "name": "Concentrated Cat"}
+    # embed new metadata
+    meta = {
+        "name": "new name",
+        "description": "new description",
+        "rights": "some copyright notice",
+    }
+    resp = requests.post(meta_endpoint, json=meta)
+    new_media_id = resp.json().get("media_id")
+    # get newly embedded metadata
+    resp = requests.get(url + f"/metadata/{new_media_id}")
+    assert resp.json() == {
+        "creator": "Some Cat Lover",
+        "description": "new description",
+        "name": "new name",
+        "rights": "some copyright notice",
+    }
