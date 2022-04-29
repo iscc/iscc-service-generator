@@ -20,9 +20,7 @@ class BaseModel(OriginalBaseModel):
             cleaned[k] = v if v else None
         return cleaned
 
-    def dict(
-        self, *args, exclude_none=True, exclude_unset=True, by_alias=True, **kwargs
-    ):
+    def dict(self, *args, exclude_none=True, exclude_unset=True, by_alias=True, **kwargs):
         """
         Overide defaults to exclude `None` and unset values and translate aliases.
 

@@ -23,15 +23,11 @@ class RFC3986Regex:
     DEC_OCTET_3: Pattern = rf"1{DIGIT}{{2}}"  # 100-199
     DEC_OCTET_4: Pattern = rf"2[0-4]{DIGIT}"  # 200-249
     DEC_OCTET_5: Pattern = rf"25[0-5]"  # 250-255
-    DEC_OCTET: Pattern = (
-        rf"({DEC_OCTET_1}|{DEC_OCTET_2}|{DEC_OCTET_3}|{DEC_OCTET_4}|{DEC_OCTET_5})"
-    )
+    DEC_OCTET: Pattern = rf"({DEC_OCTET_1}|{DEC_OCTET_2}|{DEC_OCTET_3}|{DEC_OCTET_4}|{DEC_OCTET_5})"
     IPV4ADDRESS: Pattern = rf"{DEC_OCTET}(\.{DEC_OCTET}){{3}}"
 
     H16: Pattern = rf"{HEXDIG}{{1,4}}"  # 0 ~ ffff
-    LS32: Pattern = (
-        rf"({H16}:{H16}|{IPV4ADDRESS})"  # least-significant 32 bits of address
-    )
+    LS32: Pattern = rf"({H16}:{H16}|{IPV4ADDRESS})"  # least-significant 32 bits of address
     IPV6ADDRESS_1: Pattern = rf"({H16}:){{6}}{LS32}"
     IPV6ADDRESS_2: Pattern = rf"::({H16}:){{5}}{LS32}"
     IPV6ADDRESS_3: Pattern = rf"({H16})?::({H16}:){{4}}{LS32}"
@@ -61,9 +57,7 @@ class RFC3986Regex:
     IPV_FUTURE: Pattern = rf"(?P<ipv_future>v{HEXDIG}+\.({UNRESERVED}|{SUB_DELIMS}|:)+)"
     IP_LITERAL: Pattern = rf"\[(?P<ip_literal>{IPV6ADDRESS}|{IPV_FUTURE})\]"
     REG_NAME: Pattern = rf"({UNRESERVED}|{PCT_ENCODED}|{SUB_DELIMS})*"
-    HOST: Pattern = (
-        rf"(?P<host>{IP_LITERAL}|(?P<ipv4>{IPV4ADDRESS})|(?P<domain>{REG_NAME}))"
-    )
+    HOST: Pattern = rf"(?P<host>{IP_LITERAL}|(?P<ipv4>{IPV4ADDRESS})|(?P<domain>{REG_NAME}))"
 
     PORT: Pattern = rf"(?P<port>\d*)"
 
@@ -109,9 +103,7 @@ class RFC3986Regex:
             return super().__getattribute__(item)
         if item not in self._cache:
             value = super().__getattribute__(item)
-            self._cache[item] = (
-                value if not isinstance(value, str) else re.compile(value)
-            )
+            self._cache[item] = value if not isinstance(value, str) else re.compile(value)
         return self._cache[item]
 
 
@@ -134,9 +126,7 @@ class _RegexGroupStr(str):
 
     @classmethod
     def __modify_schema__(cls, field_schema: Dict[str, Any]) -> None:
-        update_not_none(
-            field_schema, minLength=cls.min_length, maxLength=cls.max_length
-        )
+        update_not_none(field_schema, minLength=cls.min_length, maxLength=cls.max_length)
 
     @classmethod
     def __get_validators__(cls):

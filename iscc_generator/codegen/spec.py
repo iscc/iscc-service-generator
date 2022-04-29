@@ -17,9 +17,7 @@ class MediaUpload(BaseModel):
     Media Upload
     """
 
-    source_file: Optional[bytes] = Field(
-        None, description="The file used for generating the ISCC."
-    )
+    source_file: Optional[bytes] = Field(None, description="The file used for generating the ISCC.")
     source_url: Optional[AnyUrl] = Field(
         None,
         description="URL of file used for generating the ISCC.",
@@ -33,11 +31,7 @@ class MediaID(BaseModel):
     """
 
     media_id: Optional[str] = Field(
-        None,
-        description="Media file ID",
-        example="05VJUVTH3DCP6",
-        max_length=13,
-        min_length=13,
+        None, description="Media file ID", example="05VJUVTH3DCP6", max_length=13, min_length=13
     )
 
 
@@ -79,9 +73,7 @@ class IsccMetadata(BaseModel):
     _context: Optional[AnyUrl] = Field(
         "http://purl.org/iscc/context/0.3.2.jsonld",
         alias="@context",
-        description=(
-            "The [JSON-LD](https://json-ld.org/) Context URI for ISCC metadata."
-        ),
+        description="The [JSON-LD](https://json-ld.org/) Context URI for ISCC metadata.",
     )
     _type: Optional[_Type] = Field(
         None,
@@ -92,10 +84,7 @@ class IsccMetadata(BaseModel):
     _schema: Optional[AnyUrl] = Field(
         "http://purl.org/iscc/schema/0.3.2.json",
         alias="$schema",
-        description=(
-            "The [JSON Schema](https://json-schema.org/) URI of the ISCC metadata"
-            " schema."
-        ),
+        description="The [JSON Schema](https://json-schema.org/) URI of the ISCC metadata schema.",
     )
     iscc: Optional[str] = Field(
         None,
@@ -115,8 +104,8 @@ class IsccMetadata(BaseModel):
     name: Optional[str] = Field(
         None,
         description=(
-            "The title or name of the intangible creation manifested by the identified"
-            " *digital content*."
+            "The title or name of the intangible creation manifested by the identified *digital"
+            " content*."
         ),
         example="Harry Potter and the Philosopher's Stone",
         max_length=128,
@@ -124,10 +113,7 @@ class IsccMetadata(BaseModel):
     description: Optional[str] = Field(
         None,
         description="Description of the *digital content* identified by the **ISCC**.",
-        example=(
-            "A 2001 fantasy film directed by Chris Columbus and distributed by Warner"
-            " Bros."
-        ),
+        example="A 2001 fantasy film directed by Chris Columbus and distributed by Warner Bros.",
         max_length=4096,
     )
     meta: Optional[str] = Field(
@@ -152,15 +138,12 @@ class IsccMetadata(BaseModel):
         example="https://example.com/buy-this-item-here",
     )
     mode: Optional[Mode] = Field(
-        None,
-        description="The perceptual mode used to create the ISCC-CODE.",
-        example="video",
+        None, description="The perceptual mode used to create the ISCC-CODE.", example="video"
     )
     mediatype: Optional[str] = Field(
         None,
         description=(
-            "The [IANA Media"
-            " Type](https://www.iana.org/assignments/media-types/media-types.xhtml)"
+            "The [IANA Media Type](https://www.iana.org/assignments/media-types/media-types.xhtml)"
             " (MIME type) of the referenced content."
         ),
         example="image/png",
@@ -168,8 +151,8 @@ class IsccMetadata(BaseModel):
     filename: Optional[str] = Field(
         None,
         description=(
-            "Filename of the referenced **digital content** (automatically used as"
-            " fallback if the `name` field was not specified for ISCC processing)"
+            "Filename of the referenced **digital content** (automatically used as fallback if the"
+            " `name` field was not specified for ISCC processing)"
         ),
         example="some-file.png",
     )
@@ -178,9 +161,7 @@ class IsccMetadata(BaseModel):
     )
     characters: Optional[int] = Field(
         None,
-        description=(
-            "Number of text characters (code points after Unicode normalization)"
-        ),
+        description="Number of text characters (code points after Unicode normalization)",
         example=55689,
     )
     pages: Optional[int] = Field(
@@ -188,14 +169,10 @@ class IsccMetadata(BaseModel):
     )
     language: Optional[str] = Field(
         None,
-        description=(
-            "Main language of content [BCP 47](https://tools.ietf.org/search/bcp47)."
-        ),
+        description="Main language of content [BCP 47](https://tools.ietf.org/search/bcp47).",
         example="en-US",
     )
-    fps: Optional[float] = Field(
-        None, description="Frames per second of video assets.", example=24
-    )
+    fps: Optional[float] = Field(None, description="Frames per second of video assets.", example=24)
     width: Optional[int] = Field(
         None, description="Width of visual media in number of pixels.", example=640
     )
@@ -214,20 +191,18 @@ class IsccMetadata(BaseModel):
     metahash: Optional[str] = Field(
         None,
         description=(
-            "A [Multiformats](https://multiformats.io) multihash or IPFS CIDv1 of the"
-            " ISCC seed metadata. The hash is created from `name` and `description`"
-            " fields or `meta` if supplied."
+            "A [Multiformats](https://multiformats.io) multihash or IPFS CIDv1 of the ISCC seed"
+            " metadata. The hash is created from `name` and `description` fields or `meta` if"
+            " supplied."
         ),
-        example=(
-            "f01551220b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-        ),
+        example="f01551220b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
         min_length=40,
     )
     datahash: Optional[str] = Field(
         None,
         description=(
-            "A [Multihash](https://multiformats.io/multihash/) of the *digital content*"
-            " (default blake3)."
+            "A [Multihash](https://multiformats.io/multihash/) of the *digital content* (default"
+            " blake3)."
         ),
         example="bdyqk6e2jxh27tingubae32rw3teutg6lexe23qisw7gjve6k4qpteyq",
         min_length=40,
@@ -235,8 +210,8 @@ class IsccMetadata(BaseModel):
     tophash: Optional[str] = Field(
         None,
         description=(
-            "A [Multihash](https://multiformats.io/multihash/) of the concatenation"
-            " (binding) of metahash and datahash."
+            "A [Multihash](https://multiformats.io/multihash/) of the concatenation (binding) of"
+            " metahash and datahash."
         ),
         example="bdyqnosmb56tqudeibogyygmf2b25xs7wpg4zux4zcts2v6llqmnj4ja",
         min_length=40,
@@ -244,8 +219,8 @@ class IsccMetadata(BaseModel):
     thumbnail: Optional[AnyUrl] = Field(
         None,
         description=(
-            "URI for a user-presentable image that serves as a preview of the digital"
-            " content. The URI may be a Data-URL RFC2397."
+            "URI for a user-presentable image that serves as a preview of the digital content. The"
+            " URI may be a Data-URL RFC2397."
         ),
         example="https://picsum.photos/200/300.jpg",
     )
@@ -259,9 +234,7 @@ class NftMetadata(BaseModel):
     _context: Optional[AnyUrl] = Field(
         None,
         alias="@context",
-        description=(
-            "The [JSON-LD](https://json-ld.org/) Context URI for ISCC metadata."
-        ),
+        description="The [JSON-LD](https://json-ld.org/) Context URI for ISCC metadata.",
         example="http://purl.org/iscc/context",
     )
     _type: Optional[_Type] = Field(
@@ -273,10 +246,7 @@ class NftMetadata(BaseModel):
     _schema: Optional[AnyUrl] = Field(
         None,
         alias="$schema",
-        description=(
-            "The [JSON Schema](https://json-schema.org/) URI of the ISCC metadata"
-            " schema."
-        ),
+        description="The [JSON Schema](https://json-schema.org/) URI of the ISCC metadata schema.",
         example="http://purl.org/iscc/schema",
     )
     iscc: Optional[str] = Field(
@@ -288,8 +258,8 @@ class NftMetadata(BaseModel):
     name: Optional[str] = Field(
         None,
         description=(
-            "The title or name of the intangible creation manifested by the identified"
-            " *digital content*."
+            "The title or name of the intangible creation manifested by the identified *digital"
+            " content*."
         ),
         example="Harry Potter and the Philosopher's Stone",
         max_length=128,
@@ -297,17 +267,14 @@ class NftMetadata(BaseModel):
     description: Optional[str] = Field(
         None,
         description="Description of the *digital content* identified by the **ISCC**.",
-        example=(
-            "A 2001 fantasy film directed by Chris Columbus and distributed by Warner"
-            " Bros."
-        ),
+        example="A 2001 fantasy film directed by Chris Columbus and distributed by Warner Bros.",
         max_length=4096,
     )
     image: Optional[AnyUrl] = Field(
         None,
         description=(
-            "URL of the actual digital content represented by the NFT or a preview of"
-            " it if animation_url is provided."
+            "URL of the actual digital content represented by the NFT or a preview of it if"
+            " animation_url is provided."
         ),
         example="https://picsum.photos/200/300.jpg",
     )
@@ -317,8 +284,7 @@ class NftMetadata(BaseModel):
     attributes: Optional[List[Dict[str, Any]]] = Field(
         None,
         description=(
-            "Attributes of the NFT artwork. These attributes will show up on NFT"
-            " marketplaces."
+            "Attributes of the NFT artwork. These attributes will show up on NFT marketplaces."
         ),
         example=[
             {"trait_type": "METAL", "value": "SILVER"},
@@ -328,17 +294,16 @@ class NftMetadata(BaseModel):
     properties: Optional[Dict[str, Any]] = Field(
         None,
         description=(
-            "Arbitrary properties. Values may be strings, numbers, object or arrays."
-            " Properties defined here may show up on NFT marketplaces. See"
+            "Arbitrary properties. Values may be strings, numbers, object or arrays. Properties"
+            " defined here may show up on NFT marketplaces. See"
             " [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155#metadata)"
         ),
     )
     external_url: Optional[AnyUrl] = Field(
         None,
         description=(
-            "This is the URL that will appear below the asset's image on some NFT"
-            " Marketplaces and will allow users to leave the site and view the item on"
-            " your site."
+            "This is the URL that will appear below the asset's image on some NFT Marketplaces and"
+            " will allow users to leave the site and view the item on your site."
         ),
         example="https://example.com/link-to-here-from-marketplace",
     )
@@ -348,8 +313,8 @@ class NftMetadata(BaseModel):
     original: Optional[bool] = Field(
         None,
         description=(
-            "Whether the signee of the declaring transaction claims to be the original"
-            " creator of the work manifested by the identified digital content."
+            "Whether the signee of the declaring transaction claims to be the original creator of"
+            " the work manifested by the identified digital content."
         ),
     )
     redirect: Optional[AnyUrl] = Field(
@@ -361,10 +326,9 @@ class NftMetadata(BaseModel):
         None,
         description=(
             "A list of self-verifications. Self-verifications are public URLs under the"
-            " account/authority of the signee. The verification URL must respond to a"
-            " GET request with text that contains a multihash of the ISCC declaration"
-            " signees wallet address in the format of"
-            " `verify:<multihash-of-wallet-address>:verify`."
+            " account/authority of the signee. The verification URL must respond to a GET request"
+            " with text that contains a multihash of the ISCC declaration signees wallet address in"
+            " the format of `verify:<multihash-of-wallet-address>:verify`."
         ),
         example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
     )
@@ -403,17 +367,13 @@ class IsccBasicMetadata(BaseModel):
     description: Optional[str] = Field(
         None,
         description="Description of the digital content.",
-        example=(
-            "A 2001 fantasy film directed by Chris Columbus and distributed by Warner"
-            " Bros."
-        ),
+        example="A 2001 fantasy film directed by Chris Columbus and distributed by Warner Bros.",
         max_length=4096,
     )
     meta: Optional[str] = Field(
         None,
         description=(
-            "Subject, industry, or use-case specific metadata. (Encoded as JSON string"
-            " or Data-URL)"
+            "Subject, industry, or use-case specific metadata. (Encoded as JSON string or Data-URL)"
         ),
         example="data:application/json;charset=utf-8;base64,eyJleHRlbmRlZCI6Im1ldGFkYXRhIn0=",
         max_length=16384,
@@ -472,9 +432,7 @@ class NftFrozen(BaseModel):
     )
     metadata_ipfs_payload: Optional[str] = Field(
         None,
-        description=(
-            "JCS serialized and base64 encoded NFT metadata for publishing to IPFS"
-        ),
+        description="JCS serialized and base64 encoded NFT metadata for publishing to IPFS",
         example="aGVsbG8gd29ybGQ=",
     )
 
@@ -497,9 +455,8 @@ class IsccExtraMetadata(BaseModel):
     rights: Optional[str] = Field(
         None,
         description=(
-            "Contains any necessary copyright notice and should identify the current"
-            " owner of the copyright of this work with associated intellectual property"
-            " rights."
+            "Contains any necessary copyright notice and should identify the current owner of the"
+            " copyright of this work with associated intellectual property rights."
         ),
         example="© Copyright 2022 ISCC Foundation - www.iscc.codes",
     )
@@ -538,30 +495,27 @@ class NftPostRequest(BaseModel):
     attributes: Optional[List[Dict[str, Any]]] = Field(
         None,
         description=(
-            "Similar to properties but as an array of objects. These attributes will"
-            " show up on some NFT marketplaces."
+            "Similar to properties but as an array of objects. These attributes will show up on"
+            " some NFT marketplaces."
         ),
     )
     properties: Optional[Dict[str, Any]] = Field(
         None,
         description=(
-            "Arbitrary properties. Values may be strings, numbers, object or arrays."
-            " Properties defined here may show up on NFT marketplaces. See"
+            "Arbitrary properties. Values may be strings, numbers, object or arrays. Properties"
+            " defined here may show up on NFT marketplaces. See"
             " [ERC-1155](https://eips.ethereum.org/EIPS/eip-1155#metadata)"
         ),
     )
     external_url: Optional[AnyUrl] = Field(
         None,
         description=(
-            "This is the URL that will appear below the asset's image on some NFT"
-            " Marketplaces and will allow users to leave the site and view the item on"
-            " your site."
+            "This is the URL that will appear below the asset's image on some NFT Marketplaces and"
+            " will allow users to leave the site and view the item on your site."
         ),
     )
     chain: Optional[Chain] = Field(
-        None,
-        description="The blockchain used for ISCC-CODE declaration.",
-        example="POLYGON",
+        None, description="The blockchain used for ISCC-CODE declaration.", example="POLYGON"
     )
     wallet: Optional[str] = Field(
         None,
@@ -571,25 +525,24 @@ class NftPostRequest(BaseModel):
     original: Optional[bool] = Field(
         None,
         description=(
-            "The signee of the declaring transaction claims to be the original creator"
-            " of the work manifested by the identified digital content."
+            "The signee of the declaring transaction claims to be the original creator of the work"
+            " manifested by the identified digital content."
         ),
     )
     redirect: Optional[AnyUrl] = Field(
         None,
         description=(
-            "URL to which a resolver should redirect an ISCC-ID that has been minted"
-            " from a declartion that includes the IPFS-hash of this metadata instance."
+            "URL to which a resolver should redirect an ISCC-ID that has been minted from a"
+            " declartion that includes the IPFS-hash of this metadata instance."
         ),
     )
     verifications: Optional[List[Dict[str, Any]]] = Field(
         None,
         description=(
             "A list of self-verifications. Self-verifications are public URLs under the"
-            " account/authority of the signee. The verification URL must respond to a"
-            " GET request with text that contains a multihash of the ISCC declaration"
-            " signees wallet address in the format of"
-            " `verify:<multihash-of-wallet-address>:verify`."
+            " account/authority of the signee. The verification URL must respond to a GET request"
+            " with text that contains a multihash of the ISCC declaration signees wallet address in"
+            " the format of `verify:<multihash-of-wallet-address>:verify`."
         ),
         example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
     )

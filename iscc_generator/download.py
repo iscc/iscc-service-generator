@@ -49,9 +49,7 @@ def download_url(url):
         size = int(size)
         limit = config.DOWNLOAD_SIZE_LIMIT * 1000000
         if size and size > limit:
-            raise HttpError(
-                400, message=f"Download of {size} for {url} exceeds {limit} limit"
-            )
+            raise HttpError(400, message=f"Download of {size} for {url} exceeds {limit} limit")
 
     # Get filename
     filename = None

@@ -336,9 +336,7 @@ class Nft(GeneratorBaseModel):
         blank=True,
         default=None,
         max_length=4096,
-        help_text=_(
-            "URL to which an ISCC resolver should redirect for the registered ISCC-ID."
-        ),
+        help_text=_("URL to which an ISCC resolver should redirect for the registered ISCC-ID."),
     )
 
     original = models.BooleanField(
@@ -346,9 +344,7 @@ class Nft(GeneratorBaseModel):
         null=True,
         blank=True,
         default=None,
-        help_text=_(
-            "Whether the signee claims to be the original creator of the digital content."
-        ),
+        help_text=_("Whether the signee claims to be the original creator of the digital content."),
     )
 
     verifications = models.JSONField(
@@ -356,9 +352,7 @@ class Nft(GeneratorBaseModel):
         null=True,
         blank=True,
         default=None,
-        help_text=_(
-            "A list of self-verifications (Public URLs under the authority of the signee."
-        ),
+        help_text=_("A list of self-verifications (Public URLs under the authority of the signee."),
     )
 
     result = models.JSONField(

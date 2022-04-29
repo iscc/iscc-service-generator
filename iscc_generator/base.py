@@ -42,9 +42,7 @@ class GeneratorBaseModel(TimeStampedModel):
     class Meta:
         abstract = True
 
-    id = models.PositiveBigIntegerField(
-        primary_key=True, editable=False, default=make_flake
-    )
+    id = models.PositiveBigIntegerField(primary_key=True, editable=False, default=make_flake)
 
     @property
     @admin.display(ordering="id", description="ID")

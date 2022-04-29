@@ -47,9 +47,7 @@ def iscc_generator_task(pk: int):
         if iscc_obj.meta and not iscc_obj.meta.startswith("data:"):
             data = json.loads(iscc_obj.meta)
             serialized = ic.json_canonical(data)
-            durl_obj = DataURL.from_data(
-                "application/json", base64_encode=True, data=serialized
-            )
+            durl_obj = DataURL.from_data("application/json", base64_encode=True, data=serialized)
             user_metadata.meta = durl_obj.url
         else:
             user_metadata.meta = iscc_obj.meta
@@ -68,9 +66,7 @@ def iscc_generator_task(pk: int):
     iscc_result_obj.media_id = media_obj.flake
 
     iscc_obj.iscc = iscc_result_obj.iscc
-    iscc_obj.result = iscc_result_obj.dict(
-        by_alias=True, exclude_none=True, exclude_unset=False
-    )
+    iscc_obj.result = iscc_result_obj.dict(by_alias=True, exclude_none=True, exclude_unset=False)
     iscc_obj.save()
 
     # cleanup files
@@ -92,11 +88,7 @@ def nft_generator_task(pk: int):
     nft_obj = Nft.objects.get(pk=pk)
 
     # Choose the Media object
-    media_obj = (
-        nft_obj.media_id_animation
-        if nft_obj.media_id_animation
-        else nft_obj.media_id_image
-    )
+    media_obj = nft_obj.media_id_animation if nft_obj.media_id_animation else nft_obj.media_id_image
 
     # Get or create IsccCode
     if media_obj.iscc_codes.exists():

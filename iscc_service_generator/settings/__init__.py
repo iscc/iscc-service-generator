@@ -21,9 +21,7 @@ class DatabaseSettings(BaseDBConfig):
 
 
 class GeneralSettings(BaseSettings):
-    FIXTURE_DIRS: List[str] = [
-        (BASE_DIR / "iscc_service_generator/fixtures").as_posix()
-    ]
+    FIXTURE_DIRS: List[str] = [(BASE_DIR / "iscc_service_generator/fixtures").as_posix()]
     CSRF_TRUSTED_ORIGINS: List[str] = []
     X_FRAME_OPTIONS: str = "SAMEORIGIN"
     CORS_ALLOW_ALL_ORIGINS: bool = True

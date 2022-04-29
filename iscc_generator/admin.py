@@ -24,9 +24,7 @@ class NftAdmin(admin.ModelAdmin):
         models.CharField: {"widget": forms.TextInput(attrs={"size": 98})},
         models.TextField: {"widget": forms.Textarea(attrs={"cols": 98, "rows": 8})},
         models.JSONField: {
-            "widget": JSONEditorWidget(
-                width="53em", height="18em", options={"mode": "view"}
-            )
+            "widget": JSONEditorWidget(width="53em", height="18em", options={"mode": "view"})
         },
     }
 
@@ -59,9 +57,7 @@ class MediaAdmin(admin.ModelAdmin):
 
     formfield_overrides = {
         models.JSONField: {
-            "widget": JSONEditorWidget(
-                width="53em", height="28em", options={"mode": "view"}
-            )
+            "widget": JSONEditorWidget(width="53em", height="28em", options={"mode": "view"})
         },
     }
 
@@ -107,9 +103,7 @@ class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
         models.CharField: {"widget": forms.TextInput(attrs={"size": 98})},
         models.TextField: {"widget": forms.Textarea(attrs={"cols": 98, "rows": 8})},
         models.JSONField: {
-            "widget": JSONEditorWidget(
-                width="53em", height="28em", options={"mode": "view"}
-            )
+            "widget": JSONEditorWidget(width="53em", height="28em", options={"mode": "view"})
         },
     }
 
