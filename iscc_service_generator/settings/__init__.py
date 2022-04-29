@@ -30,6 +30,7 @@ class GeneralSettings(BaseSettings):
     SECRET_KEY: str = Field(default=Undefined, env="DJANGO_SECRET_KEY")
     DEBUG: bool = Field(default=False, env="DEBUG")
     DATABASES: DatabaseSettings = DatabaseSettings()
+    SENTRY_DSN: str = Field(default="", env="SENTRY_DSN")
 
     ALLOWED_HOSTS: List[str] = ["*"]
     ROOT_URLCONF: str = "iscc_service_generator.urls"

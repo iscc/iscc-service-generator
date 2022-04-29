@@ -33,6 +33,7 @@ django-cors-headers = "^3.11.0"
 ASGIMiddlewareStaticFile = "^0.3.2"
 eth-utils = "^2.0.0"
 pysha3 = "^1.0.2"
+sentry-sdk = "^1.5.10"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1"
