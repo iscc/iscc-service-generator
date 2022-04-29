@@ -4,6 +4,11 @@
 - Security path for django
 - Updated iscc-sdk and other dependencies
 - Added code formating scripts
+- Added optional sentry error reporting
+- Added support for nft linking
+- Added support for remote iscc-id forecasting
+- Added wallet address checksum normalization
+- Added support for embedding rights field
 
 [0.3.1] - 2022-04-02
 - Fix __str__ returnes NonType
