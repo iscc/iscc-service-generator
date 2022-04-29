@@ -764,7 +764,7 @@ components:
                   - BITCOIN
                   - ETHEREUM
                   - POLYGON
-                description: The blockchain ISCC-CODE declaration.
+                description: The blockchain used for ISCC-CODE declaration.
               wallet:
                 type: string
                 example: '0xb794f5ea0ba39494ce839613fffba74279579268'
@@ -795,6 +795,18 @@ components:
                 items:
                   type: object
                   example: {'url': 'https://twitter.com/titusz/status/1490104312051257347'}
+              nft_chain:
+                description: Blockchain that hosts the NFT contract for the digital content.
+                example: ETHEREUM
+                type: string
+              nft_contract:
+                description: Smartcontract address of the NFT for the digital content.
+                example: '0x6cFD889219abc3Dc4FdB441e37C5C0eBAB4EDE59'
+                type: string
+              nft_token:
+                description: Token-ID of the NFT for the digital content.
+                type: string
+                example: '1235'
             required:
               - media_id_image
       description: ''

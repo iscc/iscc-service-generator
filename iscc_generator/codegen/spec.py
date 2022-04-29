@@ -512,7 +512,7 @@ class IsccExtraMetadata(BaseModel):
 
 class Chain(Enum):
     """
-    The blockchain ISCC-CODE declaration.
+    The blockchain used for ISCC-CODE declaration.
     """
 
     BITCOIN = "BITCOIN"
@@ -559,7 +559,9 @@ class NftPostRequest(BaseModel):
         ),
     )
     chain: Optional[Chain] = Field(
-        None, description="The blockchain ISCC-CODE declaration.", example="POLYGON"
+        None,
+        description="The blockchain used for ISCC-CODE declaration.",
+        example="POLYGON",
     )
     wallet: Optional[str] = Field(
         None,
@@ -590,6 +592,19 @@ class NftPostRequest(BaseModel):
             " `verify:<multihash-of-wallet-address>:verify`."
         ),
         example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
+    )
+    nft_chain: Optional[str] = Field(
+        None,
+        description="Blockchain that hosts the NFT contract for the digital content.",
+        example="ETHEREUM",
+    )
+    nft_contract: Optional[str] = Field(
+        None,
+        description="Smartcontract address of the NFT for the digital content.",
+        example="0x6cFD889219abc3Dc4FdB441e37C5C0eBAB4EDE59",
+    )
+    nft_token: Optional[str] = Field(
+        None, description="Token-ID of the NFT for the digital content.", example="1235"
     )
 
 
