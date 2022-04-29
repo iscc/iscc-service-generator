@@ -687,6 +687,11 @@ components:
           format: uri
           example: 'https://example.com/license-terms-for-this-item'
           description: URL of license for the digital content.
+        rights:
+          type: string
+          description: Contains any necessary copyright notice and should identify the current owner
+            of the copyright of this work with associated intellectual property rights.
+          example: © Copyright 2022 ISCC Foundation - www.iscc.codes
         acquire:
           type: string
           description: URL for acquiring a license for the item.

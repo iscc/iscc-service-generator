@@ -494,6 +494,15 @@ class IsccExtraMetadata(BaseModel):
         description="URL of license for the digital content.",
         example="https://example.com/license-terms-for-this-item",
     )
+    rights: Optional[str] = Field(
+        None,
+        description=(
+            "Contains any necessary copyright notice and should identify the current"
+            " owner of the copyright of this work with associated intellectual property"
+            " rights."
+        ),
+        example="© Copyright 2022 ISCC Foundation - www.iscc.codes",
+    )
     acquire: Optional[AnyUrl] = Field(
         None,
         description="URL for acquiring a license for the item.",
