@@ -49,6 +49,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "iscc_service_generator.settings"
+asyncio_mode = "auto"
 
 [tool.poe.tasks]
 format = { cmd = "poetry run black .", help = "Code style formating with black" }
