@@ -48,13 +48,14 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "iscc_service_generator.settings"
+DJANGO_SETTINGS_MODULE = "tests.settings"
 asyncio_mode = "auto"
 
 [tool.poe.tasks]
 format = { cmd = "poetry run black .", help = "Code style formating with black" }
 lf = { cmd = "poetry run python -m dev.lf", help = "Convert line endings to lf"}
-all = ["format", "lf"]
+test = { cmd = "poetry run pytest", help = "Run testes"}
+all = ["format", "lf", "test"]
 install = { cmd = "python -m dev.install", help = "Install app with secure superuser password"}
 demo = { cmd = "python -m dev.demo", help = "Install app for development with demo/demo user"}
 
