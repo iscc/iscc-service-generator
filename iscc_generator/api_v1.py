@@ -20,6 +20,7 @@ from iscc_generator.models import IsccCode, Media, Nft
 from iscc_generator.schema import AnyObject
 from iscc_generator.storage import media_obj_from_path
 from iscc_generator.tasks import iscc_generator_task, nft_generator_task
+from iscc_generator.utils import normalize_web3_address
 from iscc_generator.codegen.spec import (
     NftPostRequest,
     MediaEmbeddedMetadata,
@@ -30,6 +31,7 @@ from constance import config
 import iscc_sdk as idk
 import iscc_core as ic
 import iscc_schema as iss
+
 
 router = Router()
 
@@ -94,16 +96,12 @@ async def iscc_code_create(
     # Create Media object if source_file provided (source_url will be handled by worker task).
     if source_file:
         try:
-            media_obj = await sync_to_async(Media.objects.create)(
-                source_file=source_file
-            )
+            media_obj = await sync_to_async(Media.objects.create)(source_file=source_file)
         except Exception as e:
             return 500, Message(detail=str(e))
 
     # create IsccCode object
-    iscc_obj = await sync_to_async(IsccCode.objects.create)(
-        source_file=media_obj, **meta.dict()
-    )
+    iscc_obj = await sync_to_async(IsccCode.objects.create)(source_file=media_obj, **meta.dict())
 
     # start processing
     task_id = await sync_to_async(async_task)(iscc_generator_task, iscc_obj.pk)
@@ -289,6 +287,7 @@ async def media_metadata_get(request, media_id: str):
 )
 async def nft_post(request, item: NftPostRequest):
     """Creates an NFT package"""
+    item = normalize_web3_address(item)
     media_obj_image = await get_or_404(Media, item.media_id_image)
     if item.media_id_animation:
         media_obj_animation = await get_or_404(Media, item.media_id_animation)
