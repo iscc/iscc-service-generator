@@ -55,6 +55,7 @@ target-version = ['py37']
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "tests.settings"
 asyncio_mode = "auto"
+addopts = "-p no:warnings"
 
 [tool.poe.tasks]
 codegen = { cmd = "poetry run python -m iscc_generator.codegen.build", help = "Generate code from openapi schema"}
