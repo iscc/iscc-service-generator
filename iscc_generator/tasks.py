@@ -9,6 +9,7 @@ from iscc_generator.models import Nft
 from iscc_generator.schema import NftSchema
 from iscc_generator.storage import media_obj_from_path
 from constance import config
+from iscc_generator.utils import forecast_iscc_id
 
 
 def iscc_generator_task(pk: int):
@@ -109,15 +110,10 @@ def nft_generator_task(pk: int):
     iscc_meta.update(nft_patch)
 
     # Set ISCC-ID if chain and wallet are provided
-    chain_map = dict(PRIVATE=0, BITCOIN=1, ETHEREUM=2, POLYGON=3)
     iscc_code = iscc_meta["iscc"]
     iscc_id = None
     if nft_obj.chain and nft_obj.wallet:
-        iscc_id = ic.gen_iscc_id(
-            iscc_code=iscc_meta["iscc"],
-            chain_id=chain_map[nft_obj.chain],
-            wallet=nft_obj.wallet,
-        )["iscc"]
+        iscc_id = forecast_iscc_id(iscc_code, nft_obj.chain, nft_obj.wallet)
         iscc_meta["iscc_id"] = iscc_id
 
     # URL template substitution
