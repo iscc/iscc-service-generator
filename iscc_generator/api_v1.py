@@ -73,7 +73,7 @@ async def iscc_code_create(
 
     Metadata supplied with the file upload will be embedded into the media asset (if possible).
     You can download the modified media asset based on the `media_id` field of the returned
-    ISCC Metadata with a GET request to /media/<vendor_id>.
+    ISCC Metadata with a GET request to /media/<media_id>.
     """
     # validate the request
     if not source_file and not meta.source_url:
