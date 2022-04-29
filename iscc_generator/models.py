@@ -95,6 +95,15 @@ class IsccCode(GeneratorBaseModel):
         help_text=_("An entity primarily responsible for making the resource."),
     )
 
+    rights = models.CharField(
+        verbose_name=_("rights"),
+        max_length=1024,
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("Copyright notice"),
+    )
+
     license = models.URLField(
         verbose_name=_("license"),
         null=True,
@@ -353,6 +362,34 @@ class Nft(GeneratorBaseModel):
         blank=True,
         default=None,
         help_text=_("A list of self-verifications (Public URLs under the authority of the signee."),
+    )
+
+    nft_chain = models.CharField(
+        verbose_name=_("nft_chain"),
+        max_length=32,
+        null=True,
+        blank=True,
+        default=None,
+        choices=Chain.choices,
+        help_text=_("Blockchain that hosts the NFT for the digital content."),
+    )
+
+    nft_contract = models.CharField(
+        verbose_name=_("nft_contract"),
+        max_length=128,
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("Smartcontract address of the NFT for the digital content."),
+    )
+
+    nft_token = models.CharField(
+        verbose_name=_("nft_token"),
+        max_length=255,
+        null=True,
+        blank=True,
+        default=None,
+        help_text=_("Token-ID of the NFT for the digital content (as string)."),
     )
 
     result = models.JSONField(
