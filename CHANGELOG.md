@@ -9,6 +9,7 @@
 - Added support for remote iscc-id forecasting
 - Added wallet address checksum normalization
 - Added support for embedding rights field
+- Changed nft_image to local url
 
 [0.3.1] - 2022-04-02
 - Fix __str__ returnes NonType

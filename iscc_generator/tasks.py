@@ -145,7 +145,7 @@ def nft_generator_task(pk: int):
         nft_id=nft_obj.flake,
         iscc_code=iscc_code,
         nft_metadata=iscc_meta,
-        nft_image=f"{config.DOMAIN}{media_obj.source_file.url}",
+        nft_image=f"{config.DOMAIN}/api/media/{media_obj.flake}",
     )
     nft_obj.result = np
     nft_obj.save()
