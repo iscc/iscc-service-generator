@@ -20,7 +20,6 @@ def build_spec():
         input_file_type=InputFileType.OpenAPI,
         output=outfile,
         encoding="UTF-8",
-        wrap_string_literal=True,
         disable_timestamp=True,
         use_schema_description=True,
         openapi_scopes=[OpenAPIScope.Schemas, OpenAPIScope.Paths],

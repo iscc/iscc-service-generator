@@ -16,6 +16,6 @@ django.setup()
 if __name__ == "__main__":
     try:
         django.db.connection.ensure_connection()
-    except (OperationalError):
+    except OperationalError:
         sys.exit(-1)
     sys.exit(0)

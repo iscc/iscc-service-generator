@@ -217,7 +217,10 @@ class Migration(migrations.Migration):
                     models.URLField(
                         blank=True,
                         default=None,
-                        help_text="URL to which an ISCC resolver should redirect for the registered ISCC-ID.",
+                        help_text=(
+                            "URL to which an ISCC resolver should redirect for the registered"
+                            " ISCC-ID."
+                        ),
                         max_length=4096,
                         null=True,
                         verbose_name="redirect",
@@ -228,7 +231,10 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         blank=True,
                         default=None,
-                        help_text="Whether the signee claims to be the original creator of the digital content.",
+                        help_text=(
+                            "Whether the signee claims to be the original creator of the digital"
+                            " content."
+                        ),
                         null=True,
                         verbose_name="original",
                     ),
@@ -238,7 +244,10 @@ class Migration(migrations.Migration):
                     models.JSONField(
                         blank=True,
                         default=None,
-                        help_text="A list of self-verifications (Public URLs under the authority of the signee.",
+                        help_text=(
+                            "A list of self-verifications (Public URLs under the authority of the"
+                            " signee."
+                        ),
                         null=True,
                         verbose_name="verifications",
                     ),
@@ -341,7 +350,10 @@ class Migration(migrations.Migration):
                     models.CharField(
                         blank=True,
                         default=None,
-                        help_text="The title or name of the work manifested by the media asset. Used as input for the ISCC Meta-Code",
+                        help_text=(
+                            "The title or name of the work manifested by the media asset. Used as"
+                            " input for the ISCC Meta-Code"
+                        ),
                         max_length=128,
                         null=True,
                         verbose_name="name",
@@ -352,7 +364,10 @@ class Migration(migrations.Migration):
                     models.TextField(
                         blank=True,
                         default=None,
-                        help_text="Description of the digital content identified by the ISCC. Used as input for the ISCC Meta-Code.",
+                        help_text=(
+                            "Description of the digital content identified by the ISCC. Used as"
+                            " input for the ISCC Meta-Code."
+                        ),
                         max_length=4096,
                         null=True,
                         verbose_name="description",
@@ -363,7 +378,11 @@ class Migration(migrations.Migration):
                     models.TextField(
                         blank=True,
                         default=None,
-                        help_text="Subject, industry, or use-case specific metadata, encoded as JSON string or Data-URL (used as sole input for Meta-Code and `metahash` generation if supplied).",
+                        help_text=(
+                            "Subject, industry, or use-case specific metadata, encoded as JSON"
+                            " string or Data-URL (used as sole input for Meta-Code and `metahash`"
+                            " generation if supplied)."
+                        ),
                         max_length=16384,
                         null=True,
                         verbose_name="meta",
