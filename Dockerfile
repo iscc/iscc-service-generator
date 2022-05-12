@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends inotify-tools p
 RUN poetry install
 
 # hadolint ignore=DL3059
-RUN poetry run python -c "import iscc_sdk; iscc_sdk.tools.install()"
+RUN poetry run python -m iscc_sdk.install
 
 COPY docker/entrypoint-dev.sh /app/docker/
 COPY docker/qcluster-autoreload.sh /app/docker/
@@ -57,7 +57,7 @@ FROM builder AS prod-build
 # hadolint ignore=SC1091
 RUN python -m venv /venv && . /venv/bin/activate && poetry install --no-dev --no-root
 
-RUN /venv/bin/python -c "import iscc_sdk; iscc_sdk.tools.install()"
+RUN /venv/bin/python -m iscc_sdk.install
 
 COPY . /app/
 
