@@ -1,6 +1,6 @@
 # Changelog
 
-[0.4.0] - Unreleased
+[0.4.0] - 2022-06-08
 - Security path for django
 - Updated iscc-sdk and other dependencies
 - Added code formating scripts

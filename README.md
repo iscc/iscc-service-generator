@@ -2,10 +2,6 @@
 
 **A microservice with REST API and management dashboard for generating ISCC codes**
 
-## Development Status
-
-Under development ...
-
 # Development Quickstart
 
 ## With docker

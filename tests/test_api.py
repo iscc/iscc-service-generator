@@ -9,7 +9,7 @@ client = TestClient(router)
 
 
 def test_project_version():
-    assert iscc_service_generator.__version__ == "0.3.1"
+    assert iscc_service_generator.__version__ == "0.4.0"
 
 
 # def test_api_generate_iscc_file_only(live_server):
