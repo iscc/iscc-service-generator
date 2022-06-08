@@ -56,8 +56,8 @@ def test_nft_post_with_media_upload(live_server):
     assert result == {
         "iscc_code": "ISCC:KECWRY3VY6R5SNV4YNBTBHR4T2HGP3HKVFO7TYUP2BKVFG724W63HVI",
         "nft_metadata": {
-            "$schema": "http://purl.org/iscc/schema/0.3.7.json",
-            "@context": "http://purl.org/iscc/context/0.3.7.jsonld",
+            "$schema": "http://purl.org/iscc/schema/0.3.8.json",
+            "@context": "http://purl.org/iscc/context/0.3.8.jsonld",
             "@type": "ImageObject",
             "creator": "Some Cat Lover",
             "datahash": "1e2055529bfae5bdb3d530c52f44d13ccd6a7c710f63620dc2db1c43c5592ae2dc97",
@@ -102,8 +102,8 @@ def test_nft_post_with_animation_url(live_server):
     assert result == {
         "iscc_code": "ISCC:KECSR5352MR7TNV4YNBTBHR4T2HGO6RDNMJX4P6UMT7LQXYXBH2R5PY",
         "nft_metadata": {
-            "$schema": "http://purl.org/iscc/schema/0.3.7.json",
-            "@context": "http://purl.org/iscc/context/0.3.7.jsonld",
+            "$schema": "http://purl.org/iscc/schema/0.3.8.json",
+            "@context": "http://purl.org/iscc/context/0.3.8.jsonld",
             "@type": "ImageObject",
             "animation_url": "ipfs://bafkreicl4rhrzfmuqfcn7nvyd32nto4uba2swwy332zgqkpyweppk3zdpm",
             "creator": "Another Cat Lover",
