@@ -546,18 +546,15 @@ class NftPostRequest(BaseModel):
         ),
         example=[{"url": "https://twitter.com/titusz/status/1490104312051257347"}],
     )
-    nft_chain: Optional[str] = Field(
+    nft: Optional[AnyUrl] = Field(
         None,
-        description="Blockchain that hosts the NFT contract for the digital content.",
-        example="ETHEREUM",
-    )
-    nft_contract: Optional[str] = Field(
-        None,
-        description="Smartcontract address of the NFT for the digital content.",
-        example="0x6cFD889219abc3Dc4FdB441e37C5C0eBAB4EDE59",
-    )
-    nft_token: Optional[str] = Field(
-        None, description="Token-ID of the NFT for the digital content.", example="1235"
+        description=(
+            "A unique URI for a non-fungible token of the identified content. The URI must contain"
+            " references to the blockchain, smart-contract and token. The recommended schemes are"
+            " [CAIP-22](https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-22.md) and"
+            " [CAIP-29](https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-29.md)."
+        ),
+        example="eip155:1/erc721:0x06012c8cf97BEaD5deAe237070F9587f8E7A266d/771769",
     )
 
 

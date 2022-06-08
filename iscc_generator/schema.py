@@ -29,9 +29,7 @@ class NftSchema(ModelSchema):
             "redirect",
             "original",
             "verifications",
-            "nft_chain",
-            "nft_contract",
-            "nft_token",
+            "nft",
         ]
 
 

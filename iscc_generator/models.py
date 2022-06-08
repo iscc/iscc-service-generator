@@ -364,32 +364,13 @@ class Nft(GeneratorBaseModel):
         help_text=_("A list of self-verifications (Public URLs under the authority of the signee."),
     )
 
-    nft_chain = models.CharField(
-        verbose_name=_("nft_chain"),
-        max_length=32,
-        null=True,
-        blank=True,
-        default=None,
-        choices=Chain.choices,
-        help_text=_("Blockchain that hosts the NFT for the digital content."),
-    )
-
-    nft_contract = models.CharField(
-        verbose_name=_("nft_contract"),
-        max_length=128,
-        null=True,
-        blank=True,
-        default=None,
-        help_text=_("Smartcontract address of the NFT for the digital content."),
-    )
-
-    nft_token = models.CharField(
-        verbose_name=_("nft_token"),
+    nft = models.CharField(
+        verbose_name=_("nft"),
         max_length=255,
         null=True,
         blank=True,
         default=None,
-        help_text=_("Token-ID of the NFT for the digital content (as string)."),
+        help_text=_("A unique URI for NFT of the identified content (CAIP-22, CAIP-29)."),
     )
 
     result = models.JSONField(
