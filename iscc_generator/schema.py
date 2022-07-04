@@ -13,7 +13,6 @@ class AnyObject(BaseModel):
 
 
 class NftPackage(BaseNftPackage):
-
     nft_metadata: iss.IsccMeta
 
 

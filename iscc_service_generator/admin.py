@@ -3,7 +3,6 @@ from django.contrib.admin import AdminSite
 
 
 class IsccAdminSite(AdminSite):
-
     site_url = "/api/docs"
 
     def get_app_list(self, request):

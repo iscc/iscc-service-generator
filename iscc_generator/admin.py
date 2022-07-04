@@ -69,7 +69,6 @@ class MediaAdmin(admin.ModelAdmin):
 
 @admin.register(IsccCode)
 class IsccCodeAdmin(DjangoObjectActions, admin.ModelAdmin):
-
     actions_on_top = False
     actions_on_bottom = True
 
