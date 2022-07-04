@@ -1,9 +1,8 @@
 # Changelog
 
-[0.4.1] - Unreleased
+[0.4.1] - 2022-07-04
 - Fix validation error with embedded identifiers
 - Updated dependencies
-
 
 [0.4.0] - 2022-06-08
 - Security path for django
